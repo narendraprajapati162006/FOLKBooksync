@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOLK BookSync — Cloud Edition</title>
+  <meta name="description" content="Cloud-powered real-time book distribution system for FOLK. Firebase Firestore backend with multi-device sync.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Firebase v10 Compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <style>
+    :root {
+      --bg-dark:#070b14; --bg-card:rgba(15,23,42,0.9); --bg-input:rgba(10,16,30,0.95);
+      --primary-amber:#f59e0b; --primary-saffron:#d97706; --primary-glow:rgba(245,158,11,0.25);
+      --accent-blue:#3b82f6; --accent-indigo:#6366f1; --accent-emerald:#10b981;
+      --accent-rose:#f43f5e; --accent-purple:#8b5cf6;
+      --text-main:#f8fafc; --text-muted:#94a3b8; --text-dim:#64748b;
+      --border-subtle:rgba(255,255,255,0.1); --border-highlight:rgba(245,158,11,0.4);
+      --radius-sm:8px; --radius-md:14px; --radius-lg:20px;
+      --shadow-main:0 10px 30px -10px rgba(0,0,0,0.6); --shadow-glow:0 0 20px rgba(245,158,11,0.15);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',system-ui,sans-serif;background-color:var(--bg-dark);background-image:radial-gradient(at 10% 10%,rgba(245,158,11,0.08) 0px,transparent 50%),radial-gradient(at 90% 90%,rgba(99,102,241,0.08) 0px,transparent 50%);background-attachment:fixed;color:var(--text-main);min-height:100vh;line-height:1.5;}
+    h1,h2,h3,h4,h5,h6{font-family:'Outfit',sans-serif;letter-spacing:-0.02em;}
+    .app-container{display:flex;flex-direction:column;min-height:100vh;}
+    /* Setup */
+    .setup-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+    .setup-card{background:rgba(15,23,42,0.95);border:1px solid var(--border-highlight);border-radius:var(--radius-lg);padding:2.5rem;width:100%;max-width:600px;box-shadow:0 20px 50px rgba(0,0,0,0.8),var(--shadow-glow);}
+    .setup-logo{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,#4285f4,#34a853);display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:#fff;margin:0 auto 1.5rem;box-shadow:0 0 30px rgba(66,133,244,0.4);}
+    .setup-card h2{text-align:center;font-size:1.8rem;background:linear-gradient(135deg,#fff 30%,var(--primary-amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem;}
+    .setup-card>p{text-align:center;color:var(--text-muted);margin-bottom:1.5rem;font-size:.9rem;}
+    .setup-steps{display:flex;flex-direction:column;gap:.75rem;margin-bottom:1.5rem;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);padding:1.25rem;border-radius:var(--radius-md);}
+    .setup-step{display:flex;gap:.75rem;align-items:flex-start;font-size:.88rem;color:var(--text-muted);}
+    .step-num{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,var(--primary-amber),var(--primary-saffron));color:#000;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .setup-step a{color:var(--accent-blue);text-decoration:none;} .setup-step a:hover{text-decoration:underline;}
+    .setup-step code{background:rgba(255,255,255,.1);padding:.1rem .4rem;border-radius:4px;font-size:.82rem;color:var(--accent-emerald);}
+    /* Loading */
+    .loading-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;}
+    .loading-spinner{font-size:3.5rem;color:var(--primary-amber);animation:spin .8s linear infinite;}
+    .loading-brand{font-family:'Outfit',sans-serif;font-size:1.6rem;font-weight:700;background:linear-gradient(135deg,#fff 30%,var(--primary-amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .loading-msg{color:var(--text-muted);font-size:.9rem;}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
+    /* Login */
+    .login-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+    .login-card{background:rgba(15,23,42,.95);border:1px solid var(--border-highlight);border-radius:var(--radius-lg);padding:2.5rem;width:100%;max-width:440px;box-shadow:0 20px 50px rgba(0,0,0,.8),var(--shadow-glow);}
+    .login-header{text-align:center;margin-bottom:2rem;}
+    .login-logo{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--primary-amber),var(--primary-saffron));display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;margin:0 auto 1rem;box-shadow:var(--shadow-glow);}
+    .login-header h2{font-size:1.6rem;background:linear-gradient(135deg,#fff 30%,var(--primary-amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .login-header p{font-size:.85rem;color:var(--text-muted);margin-top:.4rem;}
+    .cloud-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--accent-emerald);padding:.3rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;margin:.75rem auto 0;width:fit-content;}
+    /* Navbar */
+    .navbar{background:rgba(11,17,30,.95);border-bottom:1px solid var(--border-subtle);position:sticky;top:0;z-index:100;padding:.9rem 1.5rem;}
+    .nav-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;}
+    .brand{display:flex;align-items:center;gap:.75rem;}
+    .brand-icon{width:42px;height:42px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--primary-amber),var(--primary-saffron));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;box-shadow:var(--shadow-glow);}
+    .brand-text h1{font-size:1.35rem;font-weight:700;background:linear-gradient(135deg,#fff 30%,var(--primary-amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .brand-text p{font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;}
+    .sync-status{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--accent-emerald);font-weight:600;margin-left:1rem;}
+    .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--accent-emerald);animation:pulse-dot 2s ease-in-out infinite;}
+    .nav-actions{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;}
+    .nav-btn{display:flex;align-items:center;gap:.5rem;padding:.55rem 1rem;border-radius:var(--radius-sm);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .2s ease;border:1px solid transparent;}
+    .btn-primary{background:linear-gradient(135deg,var(--primary-amber),var(--primary-saffron));color:#0d1322;box-shadow:0 4px 15px rgba(245,158,11,.3);}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,158,11,.45);}
+    .btn-secondary{background:rgba(255,255,255,.06);color:var(--text-main);border:1px solid var(--border-subtle);}
+    .btn-secondary:hover{background:rgba(255,255,255,.12);}
+    .btn-emerald{background:linear-gradient(135deg,#10b981,#059669);color:#fff;}
+    .btn-indigo{background:linear-gradient(135deg,#6366f1,#4f46e5);color:#fff;}
+    .btn-purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;}
+    .btn-rose{background:linear-gradient(135deg,#f43f5e,#e11d48);color:#fff;}
+    /* Tabs */
+    .tabs-bar{background:rgba(13,19,33,.8);border-bottom:1px solid var(--border-subtle);padding:.5rem 1.5rem;}
+    .tabs-container{max-width:1400px;margin:0 auto;display:flex;gap:.5rem;overflow-x:auto;}
+    .tab-item{display:flex;align-items:center;gap:.5rem;padding:.65rem 1.25rem;border-radius:var(--radius-sm);font-size:.9rem;font-weight:500;color:var(--text-muted);background:transparent;border:1px solid transparent;cursor:pointer;transition:all .2s ease;white-space:nowrap;}
+    .tab-item:hover{color:var(--text-main);background:rgba(255,255,255,.04);}
+    .tab-item.active{color:var(--primary-amber);background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.3);font-weight:600;}
+    /* Main */
+    .main-content{max-width:1400px;margin:0 auto;padding:1.5rem;width:100%;flex:1;}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.25rem;margin-bottom:1.5rem;}
+    .stat-card{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.25rem;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;}
+    .stat-card.amber::before,.stat-card.blue::before,.stat-card.emerald::before,.stat-card.purple::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;}
+    .stat-card.amber::before{background:var(--primary-amber);}
+    .stat-card.blue::before{background:var(--accent-blue);}
+    .stat-card.emerald::before{background:var(--accent-emerald);}
+    .stat-card.purple::before{background:var(--accent-purple);}
+    .stat-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem;}
+    .stat-title{font-size:.82rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;}
+    .stat-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+    .stat-icon.amber{background:rgba(245,158,11,.15);color:var(--primary-amber);}
+    .stat-icon.blue{background:rgba(59,130,246,.15);color:var(--accent-blue);}
+    .stat-icon.emerald{background:rgba(16,185,129,.15);color:var(--accent-emerald);}
+    .stat-icon.purple{background:rgba(139,92,246,.15);color:var(--accent-purple);}
+    .stat-value{font-size:1.85rem;font-weight:700;color:var(--text-main);font-family:'Outfit',sans-serif;}
+    .stat-sub{font-size:.78rem;color:var(--text-dim);margin-top:.4rem;}
+    .glass-panel{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--shadow-main);}
+    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;}
+    .panel-title{font-size:1.2rem;font-weight:600;display:flex;align-items:center;gap:.6rem;}
+    .section-search-bar{display:flex;gap:1rem;align-items:center;margin-bottom:1.25rem;background:rgba(10,16,30,.6);padding:.75rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);}
+    .section-search-input-wrap{position:relative;flex:1;}
+    .section-search-input-wrap i{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:var(--primary-amber);}
+    .section-search-input{width:100%;padding:.6rem 1rem .6rem 2.4rem;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);color:#fff;font-size:.9rem;outline:none;}
+    .section-search-input:focus{border-color:var(--primary-amber);}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;}
+    .form-group{display:flex;flex-direction:column;gap:.4rem;}
+    .form-group label{font-size:.82rem;font-weight:600;color:var(--text-muted);}
+    .form-control{width:100%;padding:.65rem .9rem;background:var(--bg-input);border:1px solid var(--border-subtle);border-radius:var(--radius-sm);color:var(--text-main);font-size:.92rem;font-family:inherit;outline:none;}
+    .form-control:focus{border-color:var(--primary-amber);}
+    .table-responsive{width:100%;overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);}
+    .custom-table{width:100%;border-collapse:collapse;text-align:left;font-size:.88rem;}
+    .custom-table th{background:rgba(15,23,42,.95);padding:.85rem 1rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;font-size:.75rem;border-bottom:1px solid var(--border-subtle);white-space:nowrap;}
+    .custom-table td{padding:.9rem 1rem;border-bottom:1px solid rgba(255,255,255,.04);}
+    .custom-table tbody tr:hover{background:rgba(255,255,255,.03);}
+    .badge{display:inline-flex;align-items:center;gap:.35rem;padding:.25rem .65rem;border-radius:50px;font-size:.75rem;font-weight:600;}
+    .badge-amber{background:rgba(245,158,11,.15);color:var(--primary-amber);border:1px solid rgba(245,158,11,.3);}
+    .badge-emerald{background:rgba(16,185,129,.15);color:var(--accent-emerald);border:1px solid rgba(16,185,129,.3);}
+    .badge-blue{background:rgba(59,130,246,.15);color:var(--accent-blue);border:1px solid rgba(59,130,246,.3);}
+    .badge-purple{background:rgba(139,92,246,.15);color:var(--accent-purple);border:1px solid rgba(139,92,246,.3);}
+    .badge-rose{background:rgba(244,63,94,.15);color:var(--accent-rose);border:1px solid rgba(244,63,94,.3);}
+    .modal-overlay{position:fixed;inset:0;background:rgba(5,8,15,.88);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;}
+    .modal-card{background:#0f172a;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-md);width:100%;max-width:850px;box-shadow:0 25px 50px -12px rgba(0,0,0,.8);}
+    .modal-header{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;}
+    .close-btn{background:transparent;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;}
+    .modal-body{padding:1.5rem;display:flex;flex-direction:column;gap:1.2rem;max-height:75vh;overflow-y:auto;}
+    .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border-subtle);display:flex;justify-content:flex-end;gap:.75rem;}
+    .multi-item-table{width:100%;border-collapse:collapse;margin-top:.5rem;}
+    .multi-item-table th{font-size:.75rem;text-transform:uppercase;color:var(--text-muted);padding:.5rem;text-align:left;border-bottom:1px solid var(--border-subtle);}
+    .multi-item-table td{padding:.5rem;}
+    .error-banner{background:rgba(244,63,94,.15);border:1px solid rgba(244,63,94,.4);color:var(--accent-rose);padding:.85rem 1.1rem;border-radius:var(--radius-sm);font-size:.88rem;display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
+    /* Mobile Smartphone Optimization */
+    @media (max-width: 768px) {
+      body { font-size: 14px; }
+      .navbar { padding: .75rem 1rem; }
+      .nav-content { flex-direction: column; align-items: stretch; gap: .75rem; }
+      .brand { justify-content: space-between; width: 100%; }
+      .brand-text h1 { font-size: 1.1rem; }
+      .brand-text p { font-size: .65rem; }
+      .nav-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: .4rem; width: 100%; }
+      .nav-btn { justify-content: center; padding: .55rem .3rem; font-size: .75rem; gap: .3rem; text-align: center; white-space: nowrap; }
+      .nav-btn i { font-size: .85rem; }
+      
+      .tabs-bar { padding: .4rem .75rem; }
+      .tabs-container { gap: .35rem; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+      .tabs-container::-webkit-scrollbar { display: none; }
+      .tab-item { padding: .5rem .75rem; font-size: .78rem; }
+
+      .main-content { padding: .75rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); gap: .6rem; }
+      .stat-card { padding: .85rem; }
+      .stat-value { font-size: 1.3rem; }
+      .stat-sub { font-size: .68rem; }
+      .stat-icon { width: 30px; height: 30px; font-size: .9rem; }
+
+      .glass-panel { padding: .9rem; margin-bottom: 1rem; }
+      .panel-header { flex-direction: column; align-items: flex-start; gap: .6rem; }
+      .panel-title { font-size: 1rem; }
+
+      .section-search-bar { flex-direction: column; align-items: stretch; gap: .5rem; padding: .6rem; }
+
+      .setup-wrapper, .login-wrapper { padding: .85rem; }
+      .setup-card, .login-card { padding: 1.25rem; border-radius: var(--radius-md); }
+      .login-header h2, .setup-card h2 { font-size: 1.35rem; }
+
+      .modal-overlay { padding: .4rem; align-items: flex-end; }
+      .modal-card { max-height: 92vh; margin: 0; width: 100%; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+      .modal-header { padding: .85rem 1rem; }
+      .modal-body { padding: .9rem; gap: .85rem; max-height: 72vh; }
+      .modal-footer { padding: .75rem 1rem; flex-wrap: wrap; }
+      .modal-footer .nav-btn { flex: 1; }
+
+      /* Touch targets & input font size fix for mobile zoom */
+      .form-control, .section-search-input { font-size: 16px !important; padding: .55rem .7rem; }
+      .form-grid { grid-template-columns: 1fr; gap: .75rem; }
+
+      .multi-item-table th, .multi-item-table td { padding: .3rem .2rem; font-size: .75rem; }
+      .multi-item-table select, .multi-item-table input { font-size: 14px !important; padding: .4rem .2rem; }
+
+      .custom-table th { padding: .6rem .75rem; font-size: .68rem; }
+      .custom-table td { padding: .7rem; font-size: .78rem; }
+    }
+
+    @media (max-width: 480px) {
+      .nav-actions { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media print{body{background:#fff!important;color:#000!important;}.navbar,.tabs-bar,.nav-actions,.section-search-bar,.modal-overlay,.no-print{display:none!important;}.glass-panel,.stat-card{background:#fff!important;border:1px solid #ccc!important;color:#000!important;}.custom-table{color:#000!important;}.custom-table th{background:#f0f0f0!important;color:#000!important;}}
+  </style>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const fmt = (n) => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(Number(n)||0);
+const fmtDate = (s) => { if(!s)return'-'; try{const d=new Date(s);return isNaN(d)?s:d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}catch{return s;} };
+
+const CATALOG = [
+  {id:'b1',name:'Bhagavad Gita As It Is',category:'Major Work',defaultPrice:250},
+  {id:'b2',name:'Srimad Bhagavatam (Cantos 1-12)',category:'Multi-Volume',defaultPrice:600},
+  {id:'b3',name:'Sri Chaitanya Charitamrita',category:'Multi-Volume',defaultPrice:500},
+  {id:'b4',name:'Krsna - The Supreme Personality of Godhead',category:'Major Work',defaultPrice:350},
+  {id:'b5',name:'The Nectar of Devotion',category:'Major Work',defaultPrice:200},
+  {id:'b6',name:'Teachings of Lord Chaitanya',category:'Major Work',defaultPrice:200},
+  {id:'b7',name:'Science of Self Realization',category:'Medium Book',defaultPrice:150},
+  {id:'b8',name:'Beyond Birth & Death',category:'Small Book',defaultPrice:40},
+  {id:'b9',name:'Perfection of Yoga',category:'Small Book',defaultPrice:40},
+  {id:'b10',name:'Raja Vidya - King of Knowledge',category:'Small Book',defaultPrice:40},
+  {id:'b11',name:'Easy Journey to Other Planets',category:'Small Book',defaultPrice:40},
+  {id:'b12',name:'Elevation to Krsna Consciousness',category:'Small Book',defaultPrice:40},
+  {id:'b13',name:'Path of Perfection',category:'Small Book',defaultPrice:40},
+  {id:'b14',name:'Search for Liberation',category:'Small Book',defaultPrice:40},
+  {id:'b15',name:'Life Comes from Life',category:'Small Book',defaultPrice:50},
+  {id:'b16',name:'Message of Godhead',category:'Small Book',defaultPrice:50},
+  {id:'b17',name:'Teachings of Queen Kunti',category:'Medium Book',defaultPrice:120},
+  {id:'b18',name:'Light of the Bhagavata',category:'Medium Book',defaultPrice:120},
+  {id:'b19',name:'Matchless Gift',category:'Small Book',defaultPrice:40},
+  {id:'b20',name:'Dharma - The Way of Transcendence',category:'Medium Book',defaultPrice:120},
+  {id:'b21',name:'Renunciation Through Wisdom',category:'Medium Book',defaultPrice:150},
+  {id:'b22',name:'Second Chance',category:'Medium Book',defaultPrice:100},
+  {id:'b23',name:'The Nectar of Instruction',category:'Small Book',defaultPrice:40},
+  {id:'b24',name:'Sri Isopanisad',category:'Small Book',defaultPrice:40},
+  {id:'b25',name:'Mahabharata (Summary Adaptation)',category:'Epic',defaultPrice:300},
+  {id:'b26',name:'Ramayana (Summary Adaptation)',category:'Epic',defaultPrice:300}
+];
+
+const LANGS = ['English','Hindi','Bengali','Telugu','Tamil','Kannada','Marathi','Gujarati','Odia','Malayalam','Punjabi','Assamese','Sanskrit','Spanish','Russian','French','German','Portuguese','Italian','Chinese','Japanese'];
+
+// ── Firebase Configuration ─────────────────────────────────────
+// Auto-connected Firebase Config for all browsers & devices:
+const DEFAULT_FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAxxRiCVFyfT0W7-nzU_DT6ZNe3DJVCcQI",
+  authDomain: "folk-booksync.firebaseapp.com",
+  projectId: "folk-booksync",
+  storageBucket: "folk-booksync.firebasestorage.app",
+  messagingSenderId: "331565020391",
+  appId: "1:331565020391:web:978501b82b0df9252d1e42",
+  measurementId: "G-WV1RVB6KTP"
+};
+
+const getFBConfig = () => {
+  try {
+    const s = localStorage.getItem('folk_fb_cfg');
+    if (s) return JSON.parse(s);
+  } catch (e) {}
+  return DEFAULT_FIREBASE_CONFIG;
+};
+const saveFBConfig = (c) => localStorage.setItem('folk_fb_cfg', JSON.stringify(c));
+
+// ── Firebase Setup Screen ──────────────────────────────────────
+function SetupScreen({ onSave }) {
+  const [txt, setTxt] = useState('');
+  const [err, setErr] = useState('');
+
+  const connect = () => {
+    if (!txt.trim()) { setErr('Please paste your Firebase config.'); return; }
+    try {
+      let t = txt.trim();
+      const m = t.match(/const\s+\w+\s*=\s*(\{[\s\S]*?\})\s*;?/);
+      if (m) t = m[1];
+      t = t.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":').replace(/,\s*([}\]])/g,'$1');
+      const cfg = JSON.parse(t);
+      if (!cfg.apiKey || !cfg.projectId) { setErr('Invalid config — must have apiKey and projectId.'); return; }
+      onSave(cfg);
+    } catch(e) { setErr('Could not parse config. Paste the exact JSON from Firebase Console.'); }
+  };
+
+  return (
+    <div className="setup-wrapper">
+      <div className="setup-card">
+        <div className="setup-logo"><i className="fa-brands fa-google"></i></div>
+        <h2>Connect Firebase Database</h2>
+        <p>One-time setup — your data will sync across all devices in real time.</p>
+        <div className="setup-steps">
+          <div className="setup-step"><div className="step-num">1</div><div>Go to <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> → <b>Add Project</b> → name it <b>folk-booksync</b></div></div>
+          <div className="setup-step"><div className="step-num">2</div><div>Left sidebar → <b>Firestore Database</b> → <b>Create Database</b> → Production Mode → any region → Enable</div></div>
+          <div className="setup-step"><div className="step-num">3</div><div>Firestore → <b>Rules</b> tab → replace entire content with <code>rules_version='2'; service cloud.firestore &#123; match /databases/&#123;database&#125;/documents &#123; match /&#123;document=**&#125; &#123; allow read, write: if true; &#125; &#125; &#125;</code> → Publish</div></div>
+          <div className="setup-step"><div className="step-num">4</div><div>⚙️ <b>Project Settings</b> → <b>Your Apps</b> → <b>&lt;/&gt; Web</b> → Register app → copy the <b>firebaseConfig</b> object</div></div>
+          <div className="setup-step"><div className="step-num">5</div><div>Paste the config below and click Connect</div></div>
+        </div>
+        <div className="form-group" style={{marginBottom:'1rem'}}>
+          <label>Firebase Config (paste the JSON object here)</label>
+          <textarea className="form-control" rows="8" value={txt} onChange={e=>{setTxt(e.target.value);setErr('');}} placeholder={'{\n  "apiKey": "AIzaSy...",\n  "authDomain": "folk-booksync.firebaseapp.com",\n  "projectId": "folk-booksync",\n  "storageBucket": "folk-booksync.appspot.com",\n  "messagingSenderId": "12345",\n  "appId": "1:12345:web:abc"\n}'} style={{fontFamily:'monospace',fontSize:'.82rem',resize:'vertical'}} />
+        </div>
+        {err && <div className="error-banner"><i className="fa-solid fa-triangle-exclamation"></i>{err}</div>}
+        <button className="nav-btn btn-primary" style={{width:'100%',justifyContent:'center',padding:'.9rem',fontSize:'1rem',marginTop:'.5rem'}} onClick={connect}>
+          <i className="fa-brands fa-google"></i> Connect to Firebase & Launch App
+        </button>
+        <div style={{textAlign:'center',marginTop:'1rem',fontSize:'.75rem',color:'var(--text-dim)'}}>🔒 Config saved in your browser only. All data goes to Firestore.</div>
+      </div>
+    </div>
+  );
+}
+
+// ── Loading & Error screens ────────────────────────────────────
+function LoadingScreen({ msg }) {
+  return (
+    <div className="loading-screen">
+      <div className="loading-spinner"><i className="fa-solid fa-spinner"></i></div>
+      <div className="loading-brand">FOLK BookSync</div>
+      <div className="loading-msg">{msg||'Connecting to Firebase...'}</div>
+    </div>
+  );
+}
+
+function ErrorScreen({ msg, onReset }) {
+  return (
+    <div className="setup-wrapper">
+      <div className="setup-card">
+        <div className="setup-logo" style={{background:'linear-gradient(135deg,#f43f5e,#dc2626)'}}><i className="fa-solid fa-cloud-slash"></i></div>
+        <h2 style={{textAlign:'center',color:'var(--accent-rose)',marginBottom:'1rem'}}>Connection Error</h2>
+        <div className="error-banner" style={{flexDirection:'column',textAlign:'center',gap:'.5rem'}}>
+          <i className="fa-solid fa-triangle-exclamation" style={{fontSize:'1.5rem'}}></i>
+          <span>{msg}</span>
+        </div>
+        <p style={{color:'var(--text-muted)',fontSize:'.85rem',margin:'1rem 0'}}>Check your Firebase Rules — make sure <code style={{background:'rgba(255,255,255,.1)',padding:'.1rem .4rem',borderRadius:'4px',color:'var(--accent-emerald)'}}>allow read, write: if true;</code> is published.</p>
+        <button className="nav-btn btn-rose" style={{width:'100%',justifyContent:'center'}} onClick={onReset}>
+          <i className="fa-solid fa-rotate"></i> Reset & Re-enter Firebase Config
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ── Auth Screen (Login / Sign Up / Forgot Password) ────────────
+function AuthScreen({ db, onLoginSuccess }) {
+  const [mode, setMode] = useState('login'); // 'login' | 'signup' | 'forgot'
+  const [u, setU] = useState('');
+  const [p, setP] = useState('');
+  const [cp, setCp] = useState('');
+  const [sq, setSq] = useState('What is Srila Prabhupada\'s first book?');
+  const [sa, setSa] = useState('');
+  const [newP, setNewP] = useState('');
+  const [err, setErr] = useState('');
+  const [forgotStep, setForgotStep] = useState(1);
+  const [recoveryUserDoc, setRecoveryUserDoc] = useState(null);
+
+  const cleanKey = (str) => str.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+
+  // Handle Login Submission
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault();
+    setErr('');
+    const key = cleanKey(u);
+    if (!key || !p.trim()) { setErr('Enter username and password.'); return; }
+
+    // Super Admin Master Credentials
+    if (key === 'admin' && p === 'admin123') {
+      onLoginSuccess({ username: 'Master Admin', tenantKey: 'folk', role: 'admin' });
+      return;
+    }
+
+    try {
+      // Check if user exists in Firestore 'users'
+      const userSnap = await db.collection('users').doc(key).get();
+      if (!userSnap.exists) {
+        // Fallback check for default 'folk' account
+        if (key === 'folk' && p === 'admin123') {
+          onLoginSuccess({ username: 'folk', tenantKey: 'folk', role: 'user' });
+          return;
+        }
+        setErr(`❌ Account "${u.trim()}" does NOT exist! Please click "Sign Up" above to create your account.`);
+        return;
+      }
+      const data = userSnap.data();
+      if (data.password !== p) {
+        setErr('❌ Incorrect password! Please try again or use "Forgot Password".');
+        return;
+      }
+      onLoginSuccess({ username: data.username || u.trim(), tenantKey: key, role: data.role || 'user' });
+    } catch (e) {
+      setErr('Login failed: ' + e.message);
+    }
+  };
+
+  // Handle Sign Up Submission (Prevents duplicate usernames)
+  const handleSignUpSubmit = async (e) => {
+    e.preventDefault();
+    setErr('');
+    const key = cleanKey(u);
+    if (!key || !p.trim() || !cp.trim() || !sa.trim()) { setErr('Please fill in all required fields.'); return; }
+    if (p !== cp) { setErr('Passwords do not match!'); return; }
+    if (key === 'admin') { setErr('Username "admin" is reserved for Master Admin.'); return; }
+
+    try {
+      const userSnap = await db.collection('users').doc(key).get();
+      if (userSnap.exists) {
+        setErr(`⚠️ WARNING: Username "${u.trim()}" is ALREADY TAKEN! Please choose a different username.`);
+        return;
+      }
+
+      const newUserObj = {
+        username: u.trim(),
+        tenantKey: key,
+        password: p,
+        deletePin: p,
+        securityQuestion: sq,
+        securityAnswer: sa.trim().toLowerCase(),
+        role: 'user',
+        createdAt: new Date().toISOString()
+      };
+
+      await db.collection('users').doc(key).set(newUserObj);
+      await db.collection('tenants').doc(key).collection('settings').doc('credentials').set({ username: u.trim(), password: p, deletePin: p });
+      
+      alert(`🎉 Account "${u.trim()}" created successfully! Your personal workspace is ready.`);
+      onLoginSuccess({ username: u.trim(), tenantKey: key, role: 'user' });
+    } catch (e) {
+      setErr('Sign Up failed: ' + e.message);
+    }
+  };
+
+  // Handle Forgot Password - Step 1: Find Account
+  const handleForgotCheckUser = async (e) => {
+    e.preventDefault();
+    setErr('');
+    const key = cleanKey(u);
+    if (!key) { setErr('Enter your username.'); return; }
+    try {
+      const snap = await db.collection('users').doc(key).get();
+      if (!snap.exists) {
+        setErr(`Account "${u.trim()}" was not found.`);
+        return;
+      }
+      setRecoveryUserDoc(snap.data());
+      setForgotStep(2);
+    } catch (e) {
+      setErr('Account lookup failed: ' + e.message);
+    }
+  };
+
+  // Handle Forgot Password - Step 2: Reset Password
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setErr('');
+    if (!sa.trim() || !newP.trim()) { setErr('Fill in security answer and new password.'); return; }
+    if (sa.trim().toLowerCase() !== recoveryUserDoc.securityAnswer.toLowerCase()) {
+      setErr('❌ Incorrect Security Answer! Verification failed.');
+      return;
+    }
+    try {
+      const key = recoveryUserDoc.tenantKey;
+      await db.collection('users').doc(key).update({ password: newP.trim(), deletePin: newP.trim() });
+      await db.collection('tenants').doc(key).collection('settings').doc('credentials').set({ username: recoveryUserDoc.username, password: newP.trim(), deletePin: newP.trim() }, { merge: true });
+      alert('🔒 Password reset successfully! Logging you in...');
+      onLoginSuccess({ username: recoveryUserDoc.username, tenantKey: key, role: recoveryUserDoc.role || 'user' });
+    } catch (e) {
+      setErr('Password reset failed: ' + e.message);
+    }
+  };
+
+  return (
+    <div className="login-wrapper">
+      <div className="login-card" style={{ maxWidth: mode === 'signup' ? '480px' : '440px' }}>
+        <div className="login-header">
+          <img src="folk_logo.png" alt="FOLK Life" style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 1rem', display: 'block', boxShadow: '0 0 30px rgba(245,158,11,0.4)' }} />
+          <h2>FOLK BookSync</h2>
+          <p>ISKCON Bhadaj, Ahmedabad — Book Distribution Portal</p>
+          <div style={{ display: 'flex', gap: '.5rem', justifyContent: 'center', marginTop: '1rem' }}>
+            <button type="button" className={`nav-btn ${mode==='login'?'btn-primary':'btn-secondary'}`} style={{ padding: '.4rem 1.25rem', fontSize: '.85rem' }} onClick={() => { setMode('login'); setErr(''); }}>Login</button>
+            <button type="button" className={`nav-btn ${mode==='signup'?'btn-primary':'btn-secondary'}`} style={{ padding: '.4rem 1.25rem', fontSize: '.85rem' }} onClick={() => { setMode('signup'); setErr(''); }}>Sign Up</button>
+          </div>
+        </div>
+
+        {err && <div className="error-banner" style={{ marginBottom: '1rem' }}><i className="fa-solid fa-triangle-exclamation"></i><span>{err}</span></div>}
+
+        {mode === 'login' && (
+          <form onSubmit={handleLoginSubmit}>
+            <div className="form-group" style={{ marginBottom: '1rem' }}>
+              <label>Username *</label>
+              <input type="text" className="form-control" placeholder="Enter your username" value={u} onChange={e=>setU(e.target.value)} required />
+            </div>
+            <div className="form-group" style={{ marginBottom: '1.2rem' }}>
+              <label>Password *</label>
+              <input type="password" className="form-control" placeholder="Enter password" value={p} onChange={e=>setP(e.target.value)} required />
+              <div style={{ textAlign: 'right', marginTop: '.35rem' }}>
+                <button type="button" style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', fontSize: '.78rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }} onClick={() => { setMode('forgot'); setErr(''); setForgotStep(1); }}>
+                  Forgot Password?
+                </button>
+              </div>
+            </div>
+            <button type="submit" className="nav-btn btn-primary" style={{ width: '100%', justifyContent: 'center', padding: '.8rem', fontSize: '1rem' }}>
+              <i className="fa-solid fa-right-to-bracket"></i> Login to Portal
+            </button>
+          </form>
+        )}
+
+        {mode === 'signup' && (
+          <form onSubmit={handleSignUpSubmit}>
+            <div className="form-group" style={{ marginBottom: '.75rem' }}>
+              <label>Choose Username *</label>
+              <input type="text" className="form-control" placeholder="Unique username" value={u} onChange={e=>setU(e.target.value)} required />
+            </div>
+            <div className="form-grid" style={{ marginBottom: '.75rem' }}>
+              <div className="form-group"><label>Password *</label><input type="password" className="form-control" value={p} onChange={e=>setP(e.target.value)} required /></div>
+              <div className="form-group"><label>Confirm Password *</label><input type="password" className="form-control" value={cp} onChange={e=>setCp(e.target.value)} required /></div>
+            </div>
+            <div className="form-group" style={{ marginBottom: '.75rem' }}>
+              <label>Security Question (for password reset) *</label>
+              <select className="form-control" value={sq} onChange={e=>setSq(e.target.value)}>
+                <option>What is Srila Prabhupada's first book?</option>
+                <option>What is your home temple location?</option>
+                <option>What is your favorite Prabhupada book?</option>
+              </select>
+            </div>
+            <div className="form-group" style={{ marginBottom: '1.2rem' }}>
+              <label>Security Answer *</label>
+              <input type="text" className="form-control" placeholder="Answer for account recovery" value={sa} onChange={e=>setSa(e.target.value)} required />
+            </div>
+            <button type="submit" className="nav-btn btn-emerald" style={{ width: '100%', justifyContent: 'center', padding: '.8rem', fontSize: '1rem' }}>
+              <i className="fa-solid fa-user-plus"></i> Create Account & Launch Workspace
+            </button>
+          </form>
+        )}
+
+        {mode === 'forgot' && forgotStep === 1 && (
+          <form onSubmit={handleForgotCheckUser}>
+            <div className="form-group" style={{ marginBottom: '1.2rem' }}>
+              <label>Enter your Username *</label>
+              <input type="text" className="form-control" placeholder="Your username" value={u} onChange={e=>setU(e.target.value)} required />
+            </div>
+            <button type="submit" className="nav-btn btn-indigo" style={{ width: '100%', justifyContent: 'center', padding: '.8rem' }}>
+              <i className="fa-solid fa-magnifying-glass"></i> Find Account
+            </button>
+          </form>
+        )}
+
+        {mode === 'forgot' && forgotStep === 2 && recoveryUserDoc && (
+          <form onSubmit={handleResetPassword}>
+            <div style={{ background: 'rgba(255,255,255,.05)', padding: '.75rem', borderRadius: 'var(--radius-sm)', marginBottom: '1rem', fontSize: '.88rem' }}>
+              Account: <b>{recoveryUserDoc.username}</b><br/>
+              Security Question: <span style={{ color: 'var(--primary-amber)' }}>{recoveryUserDoc.securityQuestion}</span>
+            </div>
+            <div className="form-group" style={{ marginBottom: '.75rem' }}>
+              <label>Security Answer *</label>
+              <input type="text" className="form-control" placeholder="Your recovery answer" value={sa} onChange={e=>setSa(e.target.value)} required />
+            </div>
+            <div className="form-group" style={{ marginBottom: '1.2rem' }}>
+              <label>New Password *</label>
+              <input type="password" className="form-control" placeholder="New password" value={newP} onChange={e=>setNewP(e.target.value)} required />
+            </div>
+            <button type="submit" className="nav-btn btn-rose" style={{ width: '100%', justifyContent: 'center', padding: '.8rem' }}>
+              <i className="fa-solid fa-key"></i> Reset Password & Login
+            </button>
+          </form>
+        )}
+      </div>
+      <footer style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '.75rem', opacity: 0.6 }}>
+        © {new Date().getFullYear()} ISKCON Bhadaj, Ahmedabad | Managed by FOLK
+      </footer>
+    </div>
+  );
+}
+
+// ── Navbar ────────────────────────────────────────────────────
+function Navbar({ user, allUsers, selectedWorkspaceKey, onSwitchWorkspace, onOpenStock, onOpenIssue, onOpenReturn, onOpenCatalog, onOpenSettings, onLogout }) {
+  return (
+    <header className="navbar">
+      <div className="nav-content">
+        <div className="brand">
+          <img src="folk_logo.png" alt="FOLK Life" style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', boxShadow: 'var(--shadow-glow)', flexShrink: 0 }} />
+          <div className="brand-text">
+            <h1>FOLK BookSync</h1>
+            <p>ISKCON Bhadaj, Ahmedabad • <span style={{color: user?.role==='admin'?'var(--accent-rose)':'var(--primary-amber)'}}><i className={`fa-solid ${user?.role==='admin'?'fa-user-shield':'fa-user-circle'}`}></i> {user?.username}</span></p>
+          </div>
+          {user?.role === 'admin' && allUsers.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '.4rem', background: 'rgba(244,63,94,.15)', padding: '.3rem .6rem', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(244,63,94,.3)', marginLeft: '.5rem' }}>
+              <i className="fa-solid fa-eye" style={{ color: 'var(--accent-rose)', fontSize: '.8rem' }}></i>
+              <select className="form-control" style={{ padding: '.15rem .4rem', fontSize: '.78rem', width: 'auto', background: 'rgba(10,16,30,0.9)' }} value={selectedWorkspaceKey} onChange={e=>onSwitchWorkspace(e.target.value)}>
+                {allUsers.map(u => <option key={u.tenantKey} value={u.tenantKey}>View Store: {u.username}</option>)}
+              </select>
+            </div>
+          )}
+          <div className="sync-status no-print"><div className="sync-dot"></div>Cloud Synced</div>
+        </div>
+        <div className="nav-actions">
+          <button className="nav-btn btn-primary" onClick={onOpenStock}><i className="fa-solid fa-plus-circle"></i> Stock Receipt</button>
+          <button className="nav-btn btn-indigo" onClick={onOpenIssue}><i className="fa-solid fa-hand-holding-hand"></i> Issue Books</button>
+          <button className="nav-btn btn-emerald" onClick={onOpenReturn}><i className="fa-solid fa-rotate-left"></i> Book Return</button>
+          <button className="nav-btn btn-purple" onClick={onOpenCatalog}><i className="fa-solid fa-book-medical"></i> Catalog</button>
+          <button className="nav-btn btn-secondary no-print" onClick={onOpenSettings}><i className="fa-solid fa-gear"></i></button>
+          <button className="nav-btn btn-rose no-print" title="Logout" onClick={onLogout}><i className="fa-solid fa-power-off"></i></button>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+function Dashboard({ stockVouchers, issueVouchers, returnVouchers }) {
+  const inv = {};
+  stockVouchers.forEach(sv=>sv.items.forEach(i=>{const k=`${i.bookName}__${i.language||'English'}`;if(!inv[k])inv[k]={bookName:i.bookName,language:i.language||'English',price:i.price,received:0,issued:0,returned:0,sold:0,collected:0};inv[k].received+=Number(i.quantity)||0;}));
+  issueVouchers.forEach(iv=>iv.items.forEach(i=>{const k=`${i.bookName}__${i.language||'English'}`;if(!inv[k])inv[k]={bookName:i.bookName,language:i.language||'English',price:i.price,received:0,issued:0,returned:0,sold:0,collected:0};inv[k].issued+=Number(i.quantityIssued)||0;}));
+  returnVouchers.forEach(rv=>rv.items.forEach(i=>{const k=`${i.bookName}__${i.language||'English'}`;if(!inv[k])inv[k]={bookName:i.bookName,language:i.language||'English',price:i.price,received:0,issued:0,returned:0,sold:0,collected:0};inv[k].returned+=Number(i.quantityReturned)||0;inv[k].sold+=Number(i.quantitySold)||0;inv[k].collected+=Number(i.amountCollected)||0;}));
+  const list=Object.values(inv).map(x=>({...x,available:x.received-x.issued+x.returned}));
+  const totRec=list.reduce((s,x)=>s+x.received,0), totIss=list.reduce((s,x)=>s+x.issued,0), totRet=list.reduce((s,x)=>s+x.returned,0), totAvail=totRec-totIss+totRet, totSold=list.reduce((s,x)=>s+x.sold,0), totCol=list.reduce((s,x)=>s+x.collected,0);
+  return (
+    <div>
+      <div className="stats-grid">
+        <div className="stat-card amber"><div className="stat-header"><span className="stat-title">Temple Stock Received</span><div className="stat-icon amber"><i className="fa-solid fa-boxes-stacked"></i></div></div><div className="stat-value">{totRec.toLocaleString()} Pcs</div><div className="stat-sub">Across all receipts</div></div>
+        <div className="stat-card blue"><div className="stat-header"><span className="stat-title">Available Store Stock</span><div className="stat-icon blue"><i className="fa-solid fa-warehouse"></i></div></div><div className="stat-value" style={{color:'var(--accent-blue)'}}>{totAvail.toLocaleString()} Copies</div><div className="stat-sub">Recv ({totRec}) − Issued ({totIss}) + Returned ({totRet})</div></div>
+        <div className="stat-card emerald"><div className="stat-header"><span className="stat-title">Total Books Distributed</span><div className="stat-icon emerald"><i className="fa-solid fa-hand-holding-heart"></i></div></div><div className="stat-value" style={{color:'var(--accent-emerald)'}}>{totSold.toLocaleString()} Books</div><div className="stat-sub">Net = Issued − Returned</div></div>
+        <div className="stat-card purple"><div className="stat-header"><span className="stat-title">Total Donation Collected</span><div className="stat-icon purple"><i className="fa-solid fa-indian-rupee-sign"></i></div></div><div className="stat-value" style={{color:'var(--accent-purple)'}}>{fmt(totCol)}</div><div className="stat-sub">Total sales revenue</div></div>
+      </div>
+      <div className="glass-panel" style={{borderTop:'3px solid var(--primary-amber)'}}>
+        <div className="panel-header">
+          <div className="panel-title"><i className="fa-solid fa-book-bookmark" style={{color:'var(--primary-amber)'}}></i>Store Inventory — Per Book & Language</div>
+          <span className="badge badge-amber">{list.length} Stock Items</span>
+        </div>
+        <div className="table-responsive">
+          <table className="custom-table">
+            <thead><tr><th>Book Title</th><th>Language</th><th>Price</th><th>Received</th><th>Issued</th><th>Returned</th><th style={{background:'rgba(16,185,129,.2)',color:'#fff'}}>Sold</th><th style={{background:'rgba(16,185,129,.2)',color:'#fff'}}>Donation</th><th style={{background:'rgba(245,158,11,.25)',color:'#fff'}}>Available (Recv−Iss+Ret)</th></tr></thead>
+            <tbody>
+              {list.length===0?<tr><td colSpan="9" style={{textAlign:'center',padding:'2rem',color:'var(--text-muted)'}}>No stock yet. Click "+ Stock Receipt" to begin.</td></tr>:list.map((x,i)=>(
+                <tr key={i}>
+                  <td style={{fontWeight:600}}>{x.bookName}</td>
+                  <td><span className="badge badge-blue">{x.language}</span></td>
+                  <td>₹{x.price}</td>
+                  <td><span className="badge badge-amber">{x.received}</span></td>
+                  <td><span className="badge badge-purple">{x.issued}</span></td>
+                  <td><span className="badge badge-emerald">+{x.returned}</span></td>
+                  <td><span className="badge badge-emerald" style={{fontWeight:700}}>{x.sold}</span></td>
+                  <td style={{fontWeight:700,color:'var(--accent-emerald)'}}>{fmt(x.collected)}</td>
+                  <td><span className={`badge ${x.available<10?'badge-rose':'badge-amber'}`} style={{fontSize:'.88rem',fontWeight:700}}>{x.available} Copies</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Stock Modal ───────────────────────────────────────────────
+function StockModal({ isOpen, onClose, masterBooks, onAdd }) {
+  const today=new Date().toISOString().split('T')[0];
+  const [entryNo,setEntryNo]=useState(`STK-${new Date().getFullYear()}-${Math.floor(100+Math.random()*900)}`);
+  const [date,setDate]=useState(today);
+  const [recvBy,setRecvBy]=useState('FOLK Main Store');
+  const [items,setItems]=useState([{bookName:masterBooks[0]?.name||'Bhagavad Gita As It Is',language:'English',quantity:50,price:masterBooks[0]?.defaultPrice||250}]);
+  if(!isOpen)return null;
+  const addRow=()=>setItems([...items,{bookName:masterBooks[0]?.name,language:'Hindi',quantity:10,price:masterBooks[0]?.defaultPrice||250}]);
+  const remRow=(i)=>{if(items.length===1)return alert('At least one row required.');setItems(items.filter((_,j)=>j!==i));};
+  const chg=(i,f,v)=>{const n=[...items];n[i][f]=v;if(f==='bookName'){const m=masterBooks.find(b=>b.name===v);if(m)n[i].price=m.defaultPrice;}setItems(n);};
+  const totQty=items.reduce((s,x)=>s+(Number(x.quantity)||0),0);
+  const totAmt=items.reduce((s,x)=>s+(Number(x.quantity)||0)*(Number(x.price)||0),0);
+  const submit=(e)=>{e.preventDefault();if(totQty<=0)return alert('Enter valid quantities.');onAdd({id:`stk-${Date.now()}`,entryNo,date,receivedBy:recvBy,items:items.map(x=>({...x,quantity:Number(x.quantity)||0,price:Number(x.price)||0,lineTotal:(Number(x.quantity)||0)*(Number(x.price)||0)})),totalQty:totQty,totalAmount:totAmt});onClose();};
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" onClick={e=>e.stopPropagation()}>
+        <div className="modal-header"><h3><i className="fa-solid fa-boxes-stacked" style={{color:'var(--primary-amber)'}}></i> Temple Stock Receipt</h3><button className="close-btn" onClick={onClose}><i className="fa-solid fa-xmark"></i></button></div>
+        <form onSubmit={submit}>
+          <div className="modal-body">
+            <div className="form-grid">
+              <div className="form-group"><label>Receipt Entry No *</label><input type="text" className="form-control" value={entryNo} onChange={e=>setEntryNo(e.target.value)} required /></div>
+              <div className="form-group"><label>Date *</label><input type="date" className="form-control" value={date} onChange={e=>setDate(e.target.value)} required /></div>
+              <div className="form-group"><label>Received From / Store</label><input type="text" className="form-control" value={recvBy} onChange={e=>setRecvBy(e.target.value)} /></div>
+            </div>
+            <div style={{borderTop:'1px solid var(--border-subtle)',paddingTop:'1rem'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'.5rem'}}>
+                <h4 style={{fontSize:'.95rem',color:'var(--primary-amber)'}}>Books Received</h4>
+                <button type="button" className="nav-btn btn-secondary" style={{padding:'.3rem .7rem',fontSize:'.8rem'}} onClick={addRow}><i className="fa-solid fa-plus"></i> Add Row</button>
+              </div>
+              <table className="multi-item-table">
+                <thead><tr><th>Book Title</th><th style={{width:'130px'}}>Language</th><th style={{width:'80px'}}>Qty</th><th style={{width:'90px'}}>Price ₹</th><th style={{width:'100px'}}>Total</th><th style={{width:'36px'}}></th></tr></thead>
+                <tbody>
+                  {items.map((x,i)=>(
+                    <tr key={i}>
+                      <td><select className="form-control" value={x.bookName} onChange={e=>chg(i,'bookName',e.target.value)}>{masterBooks.map(b=><option key={b.id} value={b.name}>{b.name}</option>)}</select></td>
+                      <td><select className="form-control" value={x.language} onChange={e=>chg(i,'language',e.target.value)}>{LANGS.map(l=><option key={l}>{l}</option>)}</select></td>
+                      <td><input type="number" min="1" className="form-control" value={x.quantity} onChange={e=>chg(i,'quantity',e.target.value)} required /></td>
+                      <td><input type="number" min="1" className="form-control" value={x.price} onChange={e=>chg(i,'price',e.target.value)} required /></td>
+                      <td style={{fontWeight:700,color:'var(--primary-amber)'}}>{fmt((Number(x.quantity)||0)*(Number(x.price)||0))}</td>
+                      <td><button type="button" className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>remRow(i)}><i className="fa-solid fa-trash-can"></i></button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{background:'rgba(245,158,11,.1)',padding:'1rem',borderRadius:'var(--radius-sm)',display:'flex',justifyContent:'space-between'}}>
+              <div>Total Books: <b>{totQty} Pcs</b></div>
+              <div style={{fontSize:'1.1rem',fontWeight:700,color:'var(--primary-amber)'}}>Grand Total: {fmt(totAmt)}</div>
+            </div>
+          </div>
+          <div className="modal-footer"><button type="button" className="nav-btn btn-secondary" onClick={onClose}>Cancel</button><button type="submit" className="nav-btn btn-primary"><i className="fa-solid fa-cloud-arrow-up"></i> Save to Cloud</button></div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Issue Modal ───────────────────────────────────────────────
+function IssueModal({ isOpen, onClose, masterBooks, stockVouchers, issueVouchers, returnVouchers, onAdd }) {
+  const today=new Date().toISOString().split('T')[0];
+  const [issueNo,setIssueNo]=useState(`ISS-${new Date().getFullYear()}-${Math.floor(100+Math.random()*900)}`);
+  const [issueDate,setIssueDate]=useState(today);
+  const [devName,setDevName]=useState('');
+  const [loc,setLoc]=useState('Metro Station Plaza');
+  const [items,setItems]=useState([{bookName:masterBooks[0]?.name||'Bhagavad Gita As It Is',language:'English',quantityIssued:10,price:masterBooks[0]?.defaultPrice||250}]);
+  if(!isOpen)return null;
+  const avail=(bn,lang)=>{
+    let r=0;stockVouchers.forEach(sv=>sv.items.forEach(i=>{if(i.bookName===bn&&(i.language||'English')===lang)r+=Number(i.quantity)||0;}));
+    let is=0;issueVouchers.forEach(iv=>iv.items.forEach(i=>{if(i.bookName===bn&&(i.language||'English')===lang)is+=Number(i.quantityIssued)||0;}));
+    let rt=0;returnVouchers.forEach(rv=>rv.items.forEach(i=>{if(i.bookName===bn&&(i.language||'English')===lang)rt+=Number(i.quantityReturned)||0;}));
+    return r-is+rt;
+  };
+  let errMsg=null;
+  for(const x of items){if((Number(x.quantityIssued)||0)>avail(x.bookName,x.language)){errMsg=`Only ${avail(x.bookName,x.language)} copies of "${x.bookName}" (${x.language}) available in store.`;break;}}
+  const addRow=()=>setItems([...items,{bookName:masterBooks[0]?.name,language:'Hindi',quantityIssued:5,price:masterBooks[0]?.defaultPrice||250}]);
+  const remRow=(i)=>{if(items.length===1)return alert('At least one item required.');setItems(items.filter((_,j)=>j!==i));};
+  const chg=(i,f,v)=>{const n=[...items];n[i][f]=v;if(f==='bookName'){const m=masterBooks.find(b=>b.name===v);if(m)n[i].price=m.defaultPrice;}setItems(n);};
+  const submit=(e)=>{e.preventDefault();if(errMsg){alert(errMsg);return;}if(!devName.trim())return alert('Enter Devotee Name.');onAdd({id:`iss-${Date.now()}`,issueNo,issueDate,devoteeName:devName.trim(),location:loc.trim(),items:items.map(x=>({...x,quantityIssued:Number(x.quantityIssued)||0,price:Number(x.price)||0})),totalIssuedQty:items.reduce((s,x)=>s+(Number(x.quantityIssued)||0),0),status:'Active'});onClose();};
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" onClick={e=>e.stopPropagation()}>
+        <div className="modal-header"><h3><i className="fa-solid fa-hand-holding-hand" style={{color:'var(--accent-indigo)'}}></i> Issue Books to Devotee</h3><button className="close-btn" onClick={onClose}><i className="fa-solid fa-xmark"></i></button></div>
+        <form onSubmit={submit}>
+          <div className="modal-body">
+            <div className="form-grid">
+              <div className="form-group"><label>Issue Voucher No *</label><input type="text" className="form-control" value={issueNo} onChange={e=>setIssueNo(e.target.value)} required /></div>
+              <div className="form-group"><label>Issue Date *</label><input type="date" className="form-control" value={issueDate} onChange={e=>setIssueDate(e.target.value)} required /></div>
+            </div>
+            <div className="form-grid">
+              <div className="form-group"><label>Devotee Name *</label><input type="text" className="form-control" placeholder="Devotee Name" value={devName} onChange={e=>setDevName(e.target.value)} required /></div>
+              <div className="form-group"><label>Distribution Location *</label><input type="text" className="form-control" placeholder="Location / Place" value={loc} onChange={e=>setLoc(e.target.value)} required /></div>
+            </div>
+            {errMsg&&<div className="error-banner"><i className="fa-solid fa-triangle-exclamation" style={{fontSize:'1.2rem'}}></i><span>{errMsg}</span></div>}
+            <div style={{borderTop:'1px solid var(--border-subtle)',paddingTop:'1rem'}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'.5rem'}}>
+                <h4 style={{fontSize:'.95rem',color:'var(--accent-indigo)'}}>Books to Issue</h4>
+                <button type="button" className="nav-btn btn-secondary" style={{padding:'.3rem .7rem',fontSize:'.8rem'}} onClick={addRow}><i className="fa-solid fa-plus"></i> Add Row</button>
+              </div>
+              <table className="multi-item-table">
+                <thead><tr><th>Book Title</th><th style={{width:'130px'}}>Language</th><th style={{width:'90px'}}>Qty Issued</th><th style={{width:'110px'}}>Store Avail</th><th style={{width:'36px'}}></th></tr></thead>
+                <tbody>
+                  {items.map((x,i)=>{const av=avail(x.bookName,x.language);const over=(Number(x.quantityIssued)||0)>av;return(
+                    <tr key={i}>
+                      <td><select className="form-control" value={x.bookName} onChange={e=>chg(i,'bookName',e.target.value)}>{masterBooks.map(b=><option key={b.id} value={b.name}>{b.name}</option>)}</select></td>
+                      <td><select className="form-control" value={x.language} onChange={e=>chg(i,'language',e.target.value)}>{LANGS.map(l=><option key={l}>{l}</option>)}</select></td>
+                      <td><input type="number" min="1" className="form-control" style={{borderColor:over?'var(--accent-rose)':'var(--border-subtle)'}} value={x.quantityIssued} onChange={e=>chg(i,'quantityIssued',e.target.value)} required /></td>
+                      <td><span className={`badge ${av<=0?'badge-rose':'badge-emerald'}`}>{av} Pcs</span></td>
+                      <td><button type="button" className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>remRow(i)}><i className="fa-solid fa-trash-can"></i></button></td>
+                    </tr>
+                  );})}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="modal-footer"><button type="button" className="nav-btn btn-secondary" onClick={onClose}>Cancel</button><button type="submit" className="nav-btn btn-indigo" disabled={!!errMsg}><i className="fa-solid fa-cloud-arrow-up"></i> Confirm Issue</button></div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Return Modal ──────────────────────────────────────────────
+function ReturnModal({ isOpen, onClose, issueVouchers, onAdd }) {
+  const today=new Date().toISOString().split('T')[0];
+  const active=issueVouchers.filter(i=>i.status!=='Returned');
+  const [filter,setFilter]=useState('');
+  const [selNo,setSelNo]=useState('');
+  const [retDate,setRetDate]=useState(today);
+  const [items,setItems]=useState([]);
+  const filtered=active.filter(i=>i.issueNo.toLowerCase().includes(filter.toLowerCase().trim())||i.devoteeName.toLowerCase().includes(filter.toLowerCase().trim())||i.location.toLowerCase().includes(filter.toLowerCase().trim()));
+  useEffect(()=>{if(active.length>0){const f=filtered[0]||active[0];setSelNo(f.issueNo);setItems(f.items.map(x=>({...x,quantityReturned:0})));}}, [isOpen,filter]);
+  if(!isOpen)return null;
+  const cur=issueVouchers.find(i=>i.issueNo===selNo)||active[0];
+  const selChg=(v)=>{setSelNo(v);const iv=issueVouchers.find(i=>i.issueNo===v);if(iv)setItems(iv.items.map(x=>({...x,quantityReturned:0})));};
+  const retChg=(i,v)=>{const n=[...items];n[i].quantityReturned=v;setItems(n);};
+  const proc=items.map(x=>{const r=Math.max(0,Math.min(x.quantityIssued,Number(x.quantityReturned)||0));const s=Math.max(0,x.quantityIssued-r);return{...x,quantityReturned:r,quantitySold:s,amountCollected:s*x.price};});
+  const totRet=proc.reduce((s,x)=>s+x.quantityReturned,0);
+  const totSold=proc.reduce((s,x)=>s+x.quantitySold,0);
+  const totCol=proc.reduce((s,x)=>s+x.amountCollected,0);
+  const submit=(e)=>{e.preventDefault();if(!cur)return alert('Select an issue voucher.');onAdd({id:`ret-${Date.now()}`,issueNo:cur.issueNo,returnDate:retDate,devoteeName:cur.devoteeName,location:cur.location,items:proc,totalReturnedQty:totRet,totalSoldQty:totSold,totalAmountCollected:totCol});onClose();};
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" onClick={e=>e.stopPropagation()}>
+        <div className="modal-header"><h3><i className="fa-solid fa-rotate-left" style={{color:'var(--accent-emerald)'}}></i> Process Book Return</h3><button className="close-btn" onClick={onClose}><i className="fa-solid fa-xmark"></i></button></div>
+        <form onSubmit={submit}>
+          <div className="modal-body">
+            <div className="form-group"><label>Search Issue Voucher (by No or Devotee Name)</label><input type="text" className="form-control" placeholder="e.g. ISS-2026-001 or Devotee Name..." value={filter} onChange={e=>setFilter(e.target.value)} /></div>
+            <div className="form-grid">
+              <div className="form-group"><label>Select Issue Voucher *</label>
+                <select className="form-control" value={selNo} onChange={e=>selChg(e.target.value)}>
+                  {filtered.length===0?<option value="">No active vouchers found</option>:filtered.map(i=><option key={i.id} value={i.issueNo}>{i.issueNo} — {i.devoteeName} ({i.totalIssuedQty} Books) [{i.location}]</option>)}
+                </select>
+              </div>
+              <div className="form-group"><label>Return Date *</label><input type="date" className="form-control" value={retDate} onChange={e=>setRetDate(e.target.value)} required /></div>
+            </div>
+            {cur&&(
+              <div style={{borderTop:'1px solid var(--border-subtle)',paddingTop:'1rem'}}>
+                <div style={{marginBottom:'.5rem',fontSize:'.88rem',color:'var(--primary-amber)'}}>Voucher: <b>{cur.issueNo}</b> | Devotee: <b>{cur.devoteeName}</b> | Location: <b>{cur.location}</b></div>
+                <table className="multi-item-table">
+                  <thead><tr><th>Book & Language</th><th>Issued</th><th>Qty Returned</th><th style={{color:'var(--accent-emerald)'}}>Sold (Auto)</th><th style={{color:'var(--accent-emerald)'}}>Donation</th></tr></thead>
+                  <tbody>
+                    {proc.map((x,i)=>(
+                      <tr key={i}>
+                        <td style={{fontWeight:600}}>{x.bookName} ({x.language||'English'})</td>
+                        <td>{x.quantityIssued}</td>
+                        <td style={{width:'100px'}}><input type="number" min="0" max={x.quantityIssued} className="form-control" value={x.quantityReturned} onChange={e=>retChg(i,e.target.value)} /></td>
+                        <td><span className="badge badge-emerald">{x.quantitySold} Sold</span></td>
+                        <td style={{fontWeight:700,color:'var(--accent-emerald)'}}>{fmt(x.amountCollected)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <div style={{background:'rgba(16,185,129,.1)',border:'1px solid rgba(16,185,129,.3)',borderRadius:'var(--radius-sm)',padding:'1rem',display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(150px,1fr))',gap:'1rem',marginTop:'1rem'}}>
+                  <div><div style={{fontSize:'.75rem',color:'var(--text-muted)'}}>Returned (Adds to Store)</div><div style={{fontSize:'1.3rem',fontWeight:700,color:'var(--primary-amber)'}}>+{totRet} Books</div></div>
+                  <div><div style={{fontSize:'.75rem',color:'var(--text-muted)'}}>Books Sold</div><div style={{fontSize:'1.3rem',fontWeight:700,color:'var(--accent-emerald)'}}>{totSold} Books</div></div>
+                  <div><div style={{fontSize:'.75rem',color:'var(--text-muted)'}}>Donation Collected</div><div style={{fontSize:'1.3rem',fontWeight:700,color:'var(--accent-emerald)'}}>{fmt(totCol)}</div></div>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="modal-footer"><button type="button" className="nav-btn btn-secondary" onClick={onClose}>Cancel</button><button type="submit" className="nav-btn btn-emerald" disabled={!cur}><i className="fa-solid fa-cloud-arrow-up"></i> Save Return & Update Stock</button></div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ── Catalog Modal ─────────────────────────────────────────────
+function CatalogModal({ isOpen, onClose, masterBooks, onAddBook }) {
+  const [name, setName] = useState('');
+  const [cat, setCat] = useState('Medium Book');
+  const [lang, setLang] = useState('English');
+  const [price, setPrice] = useState(150);
+  if (!isOpen) return null;
+  const submit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return alert('Enter title.');
+    onAddBook({ id: `b-${Date.now()}`, name: name.trim(), category: cat, defaultLanguage: lang, defaultPrice: Number(price) || 100 });
+    setName('');
+  };
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" onClick={e=>e.stopPropagation()}>
+        <div className="modal-header"><h3><i className="fa-solid fa-book-medical" style={{color:'var(--accent-purple)'}}></i> Book Catalog Manager</h3><button className="close-btn" onClick={onClose}><i className="fa-solid fa-xmark"></i></button></div>
+        <div className="modal-body">
+          <form onSubmit={submit} style={{background:'rgba(139,92,246,.08)',padding:'1rem',borderRadius:'var(--radius-sm)',border:'1px solid rgba(139,92,246,.2)'}}>
+            <h4 style={{marginBottom:'.75rem',color:'var(--accent-purple)'}}>+ Add Custom Book Title</h4>
+            <div className="form-grid">
+              <div className="form-group"><label>Book Title *</label><input type="text" className="form-control" placeholder="Full Title" value={name} onChange={e=>setName(e.target.value)} required /></div>
+              <div className="form-group"><label>Category</label><select className="form-control" value={cat} onChange={e=>setCat(e.target.value)}><option>Major Work</option><option>Multi-Volume</option><option>Medium Book</option><option>Small Book</option><option>Epic</option></select></div>
+              <div className="form-group"><label>Default Language</label><select className="form-control" value={lang} onChange={e=>setLang(e.target.value)}>{LANGS.map(l=><option key={l}>{l}</option>)}</select></div>
+              <div className="form-group"><label>Default Price ₹</label><input type="number" className="form-control" value={price} onChange={e=>setPrice(e.target.value)} required /></div>
+            </div>
+            <button type="submit" className="nav-btn btn-purple" style={{marginTop:'.75rem'}}><i className="fa-solid fa-cloud-arrow-up"></i> Add to Catalog (Saved to Cloud)</button>
+          </form>
+          <h4 style={{marginTop:'1rem',color:'var(--text-muted)'}}>Current Catalog ({masterBooks.length} titles)</h4>
+          <div style={{maxHeight:'200px',overflowY:'auto',border:'1px solid var(--border-subtle)',borderRadius:'var(--radius-sm)'}}>
+            <table className="custom-table">
+              <thead><tr><th>Title</th><th>Category</th><th>Default Language</th><th>Price</th></tr></thead>
+              <tbody>{masterBooks.map(b=><tr key={b.id}><td style={{fontWeight:500}}>{b.name}</td><td><span className="badge badge-purple">{b.category}</span></td><td><span className="badge badge-blue">{b.defaultLanguage||'English'}</span></td><td>₹{b.defaultPrice}</td></tr>)}</tbody>
+            </table>
+          </div>
+        </div>
+        <div className="modal-footer"><button className="nav-btn btn-secondary" onClick={onClose}>Close</button></div>
+      </div>
+    </div>
+  );
+}
+
+// ── Settings Modal ────────────────────────────────────────────
+function SettingsModal({ isOpen, onClose, user, creds, onSaveCreds, onResetFB }) {
+  const [u, setU] = useState(creds.username || 'folk');
+  const [p, setP] = useState(creds.password || 'admin123');
+  const [dp, setDp] = useState(creds.deletePin || creds.password || 'admin123');
+  if (!isOpen) return null;
+  const submit = (e) => {
+    e.preventDefault();
+    if (!u.trim() || !p.trim() || !dp.trim()) return alert('Enter valid credentials and Delete Security Password.');
+    onSaveCreds({ ...creds, username: u.trim(), password: p.trim(), deletePin: dp.trim() });
+  };
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-card" style={{maxWidth:'520px'}} onClick={e=>e.stopPropagation()}>
+        <div className="modal-header"><h3><i className="fa-solid fa-gear" style={{color:'var(--primary-amber)'}}></i> Workspace & Security Settings</h3><button className="close-btn" onClick={onClose}><i className="fa-solid fa-xmark"></i></button></div>
+        <div className="modal-body">
+          <form onSubmit={submit}>
+            <h4 style={{color:'var(--primary-amber)',marginBottom:'.75rem'}}>Account Credentials</h4>
+            <div className="form-group" style={{marginBottom:'.75rem'}}><label>Username</label><input type="text" className="form-control" value={u} onChange={e=>setU(e.target.value)} required /></div>
+            <div className="form-group" style={{marginBottom:'.75rem'}}><label>Login Password</label><input type="text" className="form-control" value={p} onChange={e=>setP(e.target.value)} required /></div>
+            <div className="form-group" style={{marginBottom:'1rem'}}>
+              <label style={{color:'var(--accent-rose)',fontWeight:600}}><i className="fa-solid fa-shield-halved"></i> Delete Protection Password / PIN *</label>
+              <input type="text" className="form-control" style={{borderColor:'rgba(244,63,94,.4)'}} value={dp} onChange={e=>setDp(e.target.value)} placeholder="PIN required when deleting entries" required />
+              <span style={{fontSize:'.75rem',color:'var(--text-muted)',marginTop:'.25rem'}}>Must be entered whenever anyone tries to delete stock, issue, or return vouchers.</span>
+            </div>
+            <button type="submit" className="nav-btn btn-primary" style={{width:'100%',justifyContent:'center'}}><i className="fa-solid fa-cloud-arrow-up"></i> Save Security Settings to Cloud</button>
+          </form>
+          {user?.role === 'admin' && (
+            <div style={{marginTop:'1.5rem',paddingTop:'1.5rem',borderTop:'1px solid var(--border-subtle)'}}>
+              <h4 style={{color:'var(--accent-rose)',marginBottom:'.5rem'}}>Firebase Configuration (Master Admin Only)</h4>
+              <p style={{fontSize:'.85rem',color:'var(--text-muted)',marginBottom:'1rem'}}>Reset Firebase connection to enter a different project config.</p>
+              <button className="nav-btn btn-rose" style={{width:'100%',justifyContent:'center'}} onClick={onResetFB}><i className="fa-solid fa-rotate"></i> Reset Firebase Connection</button>
+            </div>
+          )}
+        </div>
+        <div className="modal-footer"><button className="nav-btn btn-secondary" onClick={onClose}>Close</button></div>
+      </div>
+    </div>
+  );
+}
+
+// ── Tables ────────────────────────────────────────────────────
+function StockTable({ stockVouchers, onOpen, onDelete }) {
+  const [q,setQ]=useState('');
+  const fil=stockVouchers.filter(sv=>sv.entryNo.toLowerCase().includes(q.toLowerCase().trim())||sv.receivedBy.toLowerCase().includes(q.toLowerCase().trim())||sv.items.some(i=>i.bookName.toLowerCase().includes(q.toLowerCase().trim())));
+  return (
+    <div className="glass-panel">
+      <div className="panel-header"><div className="panel-title"><i className="fa-solid fa-boxes-stacked" style={{color:'var(--primary-amber)'}}></i> 1. Temple Stock Receipts</div><button className="nav-btn btn-primary" onClick={onOpen}><i className="fa-solid fa-plus"></i> New Receipt</button></div>
+      <div className="section-search-bar"><div className="section-search-input-wrap"><i className="fa-solid fa-magnifying-glass"></i><input type="text" className="section-search-input" placeholder="Search by Receipt No (STK-2026-001), Store or Book..." value={q} onChange={e=>setQ(e.target.value)} /></div>{q&&<span className="badge badge-amber">{fil.length} Matches</span>}</div>
+      <div className="table-responsive"><table className="custom-table">
+        <thead><tr><th>Receipt No</th><th>Date</th><th>Received From</th><th>Books</th><th>Total Qty</th><th>Total Amount</th><th className="no-print">Action</th></tr></thead>
+        <tbody>{fil.length===0?<tr><td colSpan="7" style={{textAlign:'center',padding:'2rem',color:'var(--text-muted)'}}>No records found.</td></tr>:fil.map(sv=>(
+          <tr key={sv.firestoreId||sv.id}>
+            <td style={{fontWeight:700,color:'var(--primary-amber)'}}>{sv.entryNo}</td>
+            <td>{fmtDate(sv.date)}</td>
+            <td>{sv.receivedBy}</td>
+            <td>{sv.items.map((i,idx)=><div key={idx} style={{fontSize:'.82rem'}}>{i.bookName} ({i.language||'English'}) — {i.quantity} @ ₹{i.price}</div>)}</td>
+            <td><span className="badge badge-amber">{sv.totalQty} Books</span></td>
+            <td style={{fontWeight:700,color:'var(--primary-amber)'}}>{fmt(sv.totalAmount)}</td>
+            <td className="no-print"><button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(sv)}><i className="fa-solid fa-trash-can"></i></button></td>
+          </tr>
+        ))}</tbody>
+      </table></div>
+    </div>
+  );
+}
+
+function IssuesTable({ issueVouchers, onOpen, onDelete }) {
+  const [q,setQ]=useState('');
+  const fil=issueVouchers.filter(iv=>iv.issueNo.toLowerCase().includes(q.toLowerCase().trim())||iv.devoteeName.toLowerCase().includes(q.toLowerCase().trim())||iv.location.toLowerCase().includes(q.toLowerCase().trim())||iv.items.some(i=>i.bookName.toLowerCase().includes(q.toLowerCase().trim())));
+  return (
+    <div className="glass-panel">
+      <div className="panel-header"><div className="panel-title"><i className="fa-solid fa-hand-holding-hand" style={{color:'var(--accent-indigo)'}}></i> 2. Devotee Book Issue Vouchers</div><button className="nav-btn btn-indigo" onClick={onOpen}><i className="fa-solid fa-plus"></i> Issue Books</button></div>
+      <div className="section-search-bar"><div className="section-search-input-wrap"><i className="fa-solid fa-magnifying-glass"></i><input type="text" className="section-search-input" placeholder="Search by Issue No (ISS-2026-001), Devotee, Location or Book..." value={q} onChange={e=>setQ(e.target.value)} /></div>{q&&<span className="badge badge-purple">{fil.length} Matches</span>}</div>
+      <div className="table-responsive"><table className="custom-table">
+        <thead><tr><th>Issue No</th><th>Date</th><th>Devotee</th><th>Location</th><th>Books</th><th>Total Qty</th><th>Status</th><th className="no-print">Action</th></tr></thead>
+        <tbody>{fil.length===0?<tr><td colSpan="8" style={{textAlign:'center',padding:'2rem',color:'var(--text-muted)'}}>No records found.</td></tr>:fil.map(iv=>(
+          <tr key={iv.firestoreId||iv.id}>
+            <td style={{fontWeight:700,color:'var(--accent-indigo)'}}>{iv.issueNo}</td>
+            <td>{fmtDate(iv.issueDate)}</td>
+            <td style={{fontWeight:600}}>{iv.devoteeName}</td>
+            <td><span className="badge badge-blue"><i className="fa-solid fa-location-dot"></i> {iv.location}</span></td>
+            <td>{iv.items.map((i,idx)=><div key={idx} style={{fontSize:'.82rem'}}>{i.bookName} ({i.language||'English'}) — {i.quantityIssued} Pcs</div>)}</td>
+            <td><span className="badge badge-purple">{iv.totalIssuedQty} Books</span></td>
+            <td>{iv.status==='Returned'?<span className="badge badge-emerald">Processed</span>:<span className="badge badge-amber">Active</span>}</td>
+            <td className="no-print"><button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(iv)}><i className="fa-solid fa-trash-can"></i></button></td>
+          </tr>
+        ))}</tbody>
+      </table></div>
+    </div>
+  );
+}
+
+function ReturnsTable({ returnVouchers, onOpen, onDelete }) {
+  const [q,setQ]=useState('');
+  const fil=returnVouchers.filter(rv=>rv.issueNo.toLowerCase().includes(q.toLowerCase().trim())||rv.devoteeName.toLowerCase().includes(q.toLowerCase().trim())||rv.location.toLowerCase().includes(q.toLowerCase().trim()));
+  return (
+    <div className="glass-panel">
+      <div className="panel-header"><div className="panel-title"><i className="fa-solid fa-rotate-left" style={{color:'var(--accent-emerald)'}}></i> 3. Book Return & Donation Collection</div><button className="nav-btn btn-emerald" onClick={onOpen}><i className="fa-solid fa-plus"></i> Record Return</button></div>
+      <div className="section-search-bar"><div className="section-search-input-wrap"><i className="fa-solid fa-magnifying-glass"></i><input type="text" className="section-search-input" placeholder="Search by Issue No (ISS-2026-001), Devotee or Location..." value={q} onChange={e=>setQ(e.target.value)} /></div>{q&&<span className="badge badge-emerald">{fil.length} Matches</span>}</div>
+      <div className="table-responsive"><table className="custom-table">
+        <thead><tr><th>Issue No</th><th>Return Date</th><th>Devotee</th><th>Location</th><th>Books Detail</th><th>Returned</th><th style={{background:'rgba(16,185,129,.2)',color:'#fff'}}>Sold</th><th style={{background:'rgba(16,185,129,.2)',color:'#fff'}}>Donation</th><th className="no-print">Action</th></tr></thead>
+        <tbody>{fil.length===0?<tr><td colSpan="9" style={{textAlign:'center',padding:'2rem',color:'var(--text-muted)'}}>No records found.</td></tr>:fil.map(rv=>(
+          <tr key={rv.firestoreId||rv.id}>
+            <td style={{fontWeight:700,color:'var(--accent-indigo)'}}>{rv.issueNo}</td>
+            <td>{fmtDate(rv.returnDate)}</td>
+            <td style={{fontWeight:600}}>{rv.devoteeName}</td>
+            <td><span className="badge badge-blue"><i className="fa-solid fa-location-dot"></i> {rv.location}</span></td>
+            <td>{rv.items.map((i,idx)=><div key={idx} style={{fontSize:'.82rem'}}>{i.bookName}: Iss {i.quantityIssued} | Ret {i.quantityReturned} | <b>Sold {i.quantitySold}</b></div>)}</td>
+            <td><span className="badge badge-amber">+{rv.totalReturnedQty}</span></td>
+            <td><span className="badge badge-emerald" style={{fontWeight:700}}>{rv.totalSoldQty} Sold</span></td>
+            <td style={{fontWeight:700,color:'var(--accent-emerald)'}}>{fmt(rv.totalAmountCollected)}</td>
+            <td className="no-print"><button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(rv)}><i className="fa-solid fa-trash-can"></i></button></td>
+          </tr>
+        ))}</tbody>
+      </table></div>
+    </div>
+  );
+}
+
+function RecycleBin({ bin, onRestore, onPermDel, onClear }) {
+  return (
+    <div className="glass-panel">
+      <div className="panel-header">
+        <div className="panel-title"><i className="fa-solid fa-trash-arrow-up" style={{color:'var(--accent-rose)'}}></i> Recycle Bin & Deletion Audit Trail ({bin.length})</div>
+        {bin.length>0&&<button className="nav-btn btn-rose no-print" onClick={onClear}><i className="fa-solid fa-broom"></i> Empty Bin</button>}
+      </div>
+      <div className="table-responsive"><table className="custom-table">
+        <thead><tr><th>Deleted At</th><th>Type</th><th>Voucher No</th><th>Details</th><th>Deleted By</th><th className="no-print">Actions</th></tr></thead>
+        <tbody>{bin.length===0?<tr><td colSpan="6" style={{textAlign:'center',padding:'2.5rem',color:'var(--text-muted)'}}>Recycle Bin is empty. Deleted vouchers appear here for audit & restoration.</td></tr>:bin.map(x=>(
+          <tr key={x.firestoreId}>
+            <td style={{fontSize:'.82rem',color:'var(--text-muted)'}}>{x.deletedAt}</td>
+            <td><span className={`badge ${x.type==='Stock Receipt'?'badge-amber':x.type==='Issue Voucher'?'badge-purple':'badge-emerald'}`}>{x.type}</span></td>
+            <td style={{fontWeight:700}}>{x.voucherNo}</td>
+            <td style={{fontSize:'.85rem'}}>{x.details}</td>
+            <td>{x.deletedBy||'Admin'}</td>
+            <td className="no-print" style={{display:'flex',gap:'.5rem'}}>
+              <button className="nav-btn btn-emerald" style={{padding:'.3rem .6rem',fontSize:'.78rem'}} onClick={()=>onRestore(x)}><i className="fa-solid fa-rotate-left"></i> Restore</button>
+              <button className="nav-btn btn-rose" style={{padding:'.3rem .6rem',fontSize:'.78rem'}} onClick={()=>onPermDel(x)}><i className="fa-solid fa-xmark"></i> Delete</button>
+            </td>
+          </tr>
+        ))}</tbody>
+      </table></div>
+    </div>
+  );
+}
+
+function Analytics({ returnVouchers }) {
+  const [preset, setPreset] = useState('all'); // 'all' | 'today' | 'this_month' | 'this_year' | 'custom'
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  // Filter vouchers by selected date / month / year period
+  const filteredVouchers = returnVouchers.filter(rv => {
+    if (!rv.returnDate) return true;
+    const d = new Date(rv.returnDate);
+    if (isNaN(d)) return true;
+    const now = new Date();
+
+    if (preset === 'today') {
+      return d.toDateString() === now.toDateString();
+    }
+    if (preset === 'this_month') {
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }
+    if (preset === 'this_year') {
+      return d.getFullYear() === now.getFullYear();
+    }
+    if (preset === 'custom') {
+      if (startDate && new Date(rv.returnDate) < new Date(startDate)) return false;
+      if (endDate && new Date(rv.returnDate) > new Date(endDate + 'T23:59:59')) return false;
+      return true;
+    }
+    return true; // 'all'
+  });
+
+  const bk={}, dv={}, dvDisplay={}, lc={}, lg={};
+  filteredVouchers.forEach(rv => {
+    // Case-insensitive devotee name grouping — "Ram" and "ram" treated as same person
+    const dKey = (rv.devoteeName || '').trim().toLowerCase();
+    const dLabel = rv.devoteeName?.trim() || '';
+    const l = rv.location;
+    if (!dv[dKey]) { dv[dKey] = { qty: 0, amt: 0 }; dvDisplay[dKey] = dLabel; }
+    dv[dKey].qty += rv.totalSoldQty; dv[dKey].amt += rv.totalAmountCollected;
+    if (!lc[l]) lc[l] = { qty: 0, amt: 0 }; lc[l].qty += rv.totalSoldQty; lc[l].amt += rv.totalAmountCollected;
+    rv.items.forEach(i => {
+      const b = i.bookName, la = i.language || 'English';
+      if (!bk[b]) bk[b] = { qty: 0, amt: 0 }; bk[b].qty += i.quantitySold; bk[b].amt += i.amountCollected;
+      if (!lg[la]) lg[la] = { qty: 0, amt: 0 }; lg[la].qty += i.quantitySold; lg[la].amt += i.amountCollected;
+    });
+  });
+  // Map dv back with original display label
+  const dvMapped = {};
+  Object.keys(dv).forEach(k => { dvMapped[dvDisplay[k] || k] = dv[k]; });
+
+  const sort = obj => Object.keys(obj).map(k => ({ name: k, ...obj[k] })).sort((a, b) => b.qty - a.qty);
+  const TB = sort(bk), TD = sort(dvMapped), TL = sort(lc), TG = sort(lg);
+
+  const Tbl = ({ data, cols }) => (
+    <div className="table-responsive">
+      <table className="custom-table">
+        <thead><tr>{cols.map(c => <th key={c}>{c}</th>)}</tr></thead>
+        <tbody>
+          {data.length === 0 ? (
+            <tr><td colSpan={cols.length} style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>No data for selected period.</td></tr>
+          ) : (
+            data.map((r, i) => (
+              <tr key={i}><td><b>#{i + 1}</b></td><td style={{ fontWeight: 600 }}>{r.name}</td><td><span className="badge badge-emerald">{r.qty} Pcs</span></td><td style={{ fontWeight: 700, color: 'var(--accent-emerald)' }}>{fmt(r.amt)}</td></tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const Tbl2 = ({ data }) => (
+    <div className="table-responsive">
+      <table className="custom-table">
+        <thead><tr><th>Place/Language</th><th>Books Sold</th><th>Collection</th></tr></thead>
+        <tbody>
+          {data.length === 0 ? (
+            <tr><td colSpan="3" style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>No data for selected period.</td></tr>
+          ) : (
+            data.map((r, i) => (
+              <tr key={i}><td>{r.name}</td><td><span className="badge badge-blue">{r.qty}</span></td><td style={{ fontWeight: 700 }}>{fmt(r.amt)}</td></tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  return (
+    <div className="glass-panel">
+      <div className="panel-header">
+        <div className="panel-title"><i className="fa-solid fa-chart-line" style={{ color: 'var(--accent-purple)' }}></i> Distribution Analytics & Statistics</div>
+        <button className="nav-btn btn-indigo no-print" onClick={() => window.print()}><i className="fa-solid fa-print"></i> Print Report</button>
+      </div>
+
+      {/* Date, Month, Year & Custom Period Filter */}
+      <div className="no-print" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', background: 'rgba(15,23,42,0.8)', padding: '.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontSize: '.85rem', fontWeight: 600, color: 'var(--primary-amber)' }}>
+          <i className="fa-solid fa-calendar-days"></i> Filter Period:
+        </div>
+        <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap' }}>
+          <button type="button" className={`nav-btn ${preset==='all'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('all')}>All Time</button>
+          <button type="button" className={`nav-btn ${preset==='today'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('today')}>Today</button>
+          <button type="button" className={`nav-btn ${preset==='this_month'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('this_month')}>This Month</button>
+          <button type="button" className={`nav-btn ${preset==='this_year'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('this_year')}>This Year</button>
+          <button type="button" className={`nav-btn ${preset==='custom'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('custom')}>Custom Range</button>
+        </div>
+
+        {preset === 'custom' && (
+          <div style={{ display: 'flex', gap: '.4rem', alignItems: 'center' }}>
+            <input type="date" className="form-control" style={{ padding: '.3rem .5rem', fontSize: '.82rem', width: 'auto' }} value={startDate} onChange={e => setStartDate(e.target.value)} />
+            <span style={{ fontSize: '.8rem', color: 'var(--text-muted)' }}>to</span>
+            <input type="date" className="form-control" style={{ padding: '.3rem .5rem', fontSize: '.82rem', width: 'auto' }} value={endDate} onChange={e => setEndDate(e.target.value)} />
+          </div>
+        )}
+
+        <span className="badge badge-purple" style={{ marginLeft: 'auto' }}>
+          {filteredVouchers.length} Vouchers Included
+        </span>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '1.5rem' }}>
+        <div><h4 style={{ marginBottom: '.75rem', color: 'var(--primary-amber)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-fire"></i> Most Distributed Books</h4><Tbl data={TB} cols={['Rank', 'Book', 'Qty Sold', 'Donation']} /></div>
+        <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-indigo)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-trophy"></i> Devotee Leaderboard</h4><Tbl data={TD} cols={['Rank', 'Devotee', 'Books Sold', 'Collection']} /></div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+        <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-location-dot"></i> Distribution by Location</h4><Tbl2 data={TL} /></div>
+        <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-language"></i> Language-wise Share</h4><Tbl2 data={TG} /></div>
+      </div>
+    </div>
+  );
+}
+
+// ── Master Admin Panel ─────────────────────────────────────────
+function MasterAdminPanel({ allUsers, db, selectedWorkspaceKey, onSwitchWorkspace }) {
+  const resetPass = async (uObj) => {
+    const np = prompt(`Enter new password for user "${uObj.username}":`, '123456');
+    if (!np) return;
+    try {
+      await db.collection('users').doc(uObj.tenantKey).update({ password: np.trim(), deletePin: np.trim() });
+      await db.collection('tenants').doc(uObj.tenantKey).collection('settings').doc('credentials').set({ username: uObj.username, password: np.trim(), deletePin: np.trim() }, { merge: true });
+      alert(`✅ Password for "${uObj.username}" reset successfully to "${np.trim()}"!`);
+    } catch (e) {
+      alert('Password reset failed: ' + e.message);
+    }
+  };
+
+  return (
+    <div className="glass-panel" style={{ borderTop: '3px solid var(--accent-rose)' }}>
+      <div className="panel-header">
+        <div className="panel-title"><i className="fa-solid fa-user-shield" style={{ color: 'var(--accent-rose)' }}></i> Master Admin Control Center ({allUsers.length} Registered Accounts)</div>
+        <span className="badge badge-rose">Master Admin Visibility</span>
+      </div>
+      <p style={{ fontSize: '.88rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+        As Master Admin, you can monitor system-wide activity, switch workspace views to any store account, and manage user credentials.
+      </p>
+      <div className="table-responsive">
+        <table className="custom-table">
+          <thead><tr><th>#</th><th>Username / Store ID</th><th>Role</th><th>Registered On</th><th>Current Workspace View</th><th className="no-print">Actions</th></tr></thead>
+          <tbody>
+            {allUsers.length === 0 ? (
+              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>No user accounts found yet. Users will appear here when they Sign Up.</td></tr>
+            ) : (
+              allUsers.map((u, i) => (
+                <tr key={u.tenantKey || i}>
+                  <td><b>#{i+1}</b></td>
+                  <td style={{ fontWeight: 700, color: 'var(--primary-amber)' }}>{u.username}</td>
+                  <td><span className={`badge ${u.role==='admin'?'badge-rose':'badge-blue'}`}>{u.role || 'user'}</span></td>
+                  <td style={{ fontSize: '.82rem', color: 'var(--text-muted)' }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-IN') : 'Default'}</td>
+                  <td>
+                    {selectedWorkspaceKey === u.tenantKey ? (
+                      <span className="badge badge-emerald"><i className="fa-solid fa-eye"></i> Currently Viewing</span>
+                    ) : (
+                      <button className="nav-btn btn-secondary" style={{ padding: '.3rem .65rem', fontSize: '.78rem' }} onClick={() => onSwitchWorkspace(u.tenantKey)}>
+                        <i className="fa-solid fa-right-to-bracket"></i> Switch to {u.username}'s Store
+                      </button>
+                    )}
+                  </td>
+                  <td className="no-print">
+                    <button className="nav-btn btn-rose" style={{ padding: '.3rem .65rem', fontSize: '.78rem' }} onClick={() => resetPass(u)}>
+                      <i className="fa-solid fa-key"></i> Reset Password
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ── MAIN APP ──────────────────────────────────────────────────
+function App() {
+  const [fbCfg, setFbCfg] = useState(getFBConfig);
+  const [db, setDb] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [fbErr, setFbErr] = useState(null);
+
+  const [creds, setCreds] = useState({username:'folk',password:'admin123',deletePin:'admin123'});
+  const [user, setUser] = useState(()=>{try{return JSON.parse(sessionStorage.getItem('folk_session'));}catch{return null;}});
+  const [selectedWorkspaceKey, setSelectedWorkspaceKey] = useState(()=>{try{return JSON.parse(sessionStorage.getItem('folk_session'))?.tenantKey||'folk';}catch{return 'folk';}});
+  const [allUsers, setAllUsers] = useState([]);
+
+  const [masterBooks, setMasterBooks] = useState(CATALOG);
+  const [stock, setStock] = useState([]);
+  const [issues, setIssues] = useState([]);
+  const [returns, setReturns] = useState([]);
+  const [bin, setBin] = useState([]);
+
+  const [tab, setTab] = useState('dashboard');
+  const [showStock, setShowStock] = useState(false);
+  const [showIssue, setShowIssue] = useState(false);
+  const [showReturn, setShowReturn] = useState(false);
+  const [showCatalog, setShowCatalog] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+
+  // Init Firebase
+  useEffect(()=>{
+    if(!fbCfg){setLoading(false);return;}
+    try{
+      let app = firebase.apps.length===0 ? firebase.initializeApp(fbCfg) : firebase.apps[0];
+      setDb(app.firestore());
+    }catch(e){setFbErr('Firebase init failed: '+e.message);setLoading(false);}
+  },[fbCfg]);
+
+  // Master Admin: Listen to all registered accounts
+  useEffect(()=>{
+    if(!db) return;
+    return db.collection('users').onSnapshot(s=>{
+      setAllUsers(s.docs.map(d=>d.data()));
+    });
+  },[db]);
+
+  // Helper for multi-tenant collection routing
+  const getCol = (colName) => {
+    if (!db) return null;
+    const k = selectedWorkspaceKey || user?.tenantKey || 'folk';
+    if (k === 'folk') return db.collection(colName);
+    return db.collection('tenants').doc(k).collection(colName);
+  };
+
+  // Firestore listeners (runs on workspace change / user change)
+  useEffect(()=>{
+    if(!db || !user) return;
+    setLoading(true);
+    const loaded={}; let cnt=0;
+    const mark=(k)=>{if(!loaded[k]){loaded[k]=true;cnt++;if(cnt>=6)setLoading(false);}};
+    const err=(e)=>setFbErr('Firestore error: '+e.message+'. Check Firebase Rules (allow read, write: if true).');
+    const unsubs=[];
+    
+    const colSetting = getCol('settings');
+    const colStock = getCol('stockVouchers');
+    const colIssue = getCol('issueVouchers');
+    const colReturn = getCol('returnVouchers');
+    const colBin = getCol('recycleBin');
+
+    unsubs.push(colSetting.doc('credentials').onSnapshot(d=>{if(d.exists)setCreds(d.data());mark('cr');},err));
+    unsubs.push(colSetting.doc('booksCatalog').onSnapshot(d=>{if(d.exists&&d.data()?.books?.length>0)setMasterBooks(d.data().books);else setMasterBooks(CATALOG);mark('bk');},err));
+    unsubs.push(colStock.orderBy('createdAt','desc').onSnapshot(s=>{setStock(s.docs.map(d=>({...d.data(),firestoreId:d.id})));mark('st');},err));
+    unsubs.push(colIssue.orderBy('createdAt','desc').onSnapshot(s=>{setIssues(s.docs.map(d=>({...d.data(),firestoreId:d.id})));mark('is');},err));
+    unsubs.push(colReturn.orderBy('createdAt','desc').onSnapshot(s=>{setReturns(s.docs.map(d=>({...d.data(),firestoreId:d.id})));mark('re');},err));
+    unsubs.push(colBin.orderBy('createdAt','desc').onSnapshot(s=>{setBin(s.docs.map(d=>({...d.data(),firestoreId:d.id})));mark('bi');},err));
+    
+    return()=>unsubs.forEach(u=>u());
+  },[db, user, selectedWorkspaceKey]);
+
+  const TS=()=>firebase.firestore.FieldValue.serverTimestamp();
+
+  // Delete Security Password / PIN check with Retry option (3 attempts)
+  const checkDeletePin = () => {
+    const expected = creds.deletePin || creds.password || 'admin123';
+    let attempts = 0;
+    while (attempts < 3) {
+      const msg = attempts === 0 
+        ? '🔒 SECURITY PIN REQUIRED\n\nEnter Delete Protection Security Password / PIN to confirm deletion:' 
+        : `❌ Incorrect Password! (Attempt ${attempts + 1} of 3)\n\nPlease try again or click Cancel:`;
+      const input = prompt(msg);
+      if (input === null) return false;
+      if (input.trim() === expected) return true;
+      attempts++;
+    }
+    alert('❌ Maximum security PIN attempts reached. Deletion cancelled.');
+    return false;
+  };
+
+  const handleAddStock=async(v)=>{await getCol('stockVouchers').add({...v,createdAt:TS()});};
+  const handleAddIssue=async(v)=>{await getCol('issueVouchers').add({...v,createdAt:TS()});};
+  const handleAddReturn=async(v)=>{
+    const batch=db.batch();
+    batch.set(getCol('returnVouchers').doc(),{...v,createdAt:TS()});
+    const iv=issues.find(x=>x.issueNo===v.issueNo);
+    if(iv?.firestoreId)batch.update(getCol('issueVouchers').doc(iv.firestoreId),{status:'Returned'});
+    await batch.commit();
+  };
+
+  const softDel=async(colName,doc,type,voucherNo,details)=>{
+    if(!checkDeletePin()) return;
+    if(!confirm(`Delete ${type} "${voucherNo}"? It will be moved to the Recycle Bin.`))return;
+    const {firestoreId:_,...clean}=doc;
+    const batch=db.batch();
+    batch.set(getCol('recycleBin').doc(),{type,voucherNo,details,deletedAt:new Date().toLocaleString('en-IN'),deletedBy:user?.username||'Admin',originalData:clean,createdAt:TS()});
+    batch.delete(getCol(colName).doc(doc.firestoreId));
+    await batch.commit();
+  };
+
+  const handleDelStock=(sv)=>softDel('stockVouchers',sv,'Stock Receipt',sv.entryNo,`Store: ${sv.receivedBy} | ${sv.totalQty} Books | ₹${sv.totalAmount}`);
+  const handleDelIssue=(iv)=>softDel('issueVouchers',iv,'Issue Voucher',iv.issueNo,`Devotee: ${iv.devoteeName} | ${iv.location} | ${iv.totalIssuedQty} Books`);
+  const handleDelReturn=(rv)=>softDel('returnVouchers',rv,'Return Voucher',rv.issueNo,`Devotee: ${rv.devoteeName} | Ret: ${rv.totalReturnedQty} | Sold: ${rv.totalSoldQty} | ₹${rv.totalAmountCollected}`);
+
+  const handleRestore=async(item)=>{
+    const{firestoreId:_,...clean}=item.originalData||{};
+    const col=item.type==='Stock Receipt'?'stockVouchers':item.type==='Issue Voucher'?'issueVouchers':'returnVouchers';
+    const batch=db.batch();
+    batch.set(getCol(col).doc(),{...clean,createdAt:TS()});
+    batch.delete(getCol('recycleBin').doc(item.firestoreId));
+    await batch.commit();
+    alert(`Restored "${item.voucherNo}" successfully!`);
+  };
+  const handlePermDel=async(item)=>{
+    if(!checkDeletePin()) return;
+    if(confirm(`Permanently delete "${item.voucherNo}"? Cannot be undone.`))await getCol('recycleBin').doc(item.firestoreId).delete();
+  };
+  const handleClearBin=async()=>{
+    if(!checkDeletePin()) return;
+    if(confirm('Empty entire Recycle Bin permanently?')){const batch=db.batch();bin.forEach(x=>batch.delete(getCol('recycleBin').doc(x.firestoreId)));await batch.commit();}
+  };
+
+  const handleSaveCreds=async(c)=>{await getCol('settings').doc('credentials').set(c);alert('Settings saved to cloud!');};
+  const handleAddBook=async(b)=>{const upd=[...masterBooks,b];await getCol('settings').doc('booksCatalog').set({books:upd});alert(`"${b.name}" added to catalog!`);};
+  const handleResetFB=()=>{if(confirm('Reset Firebase? You will need to re-enter your config.')){localStorage.removeItem('folk_fb_cfg');sessionStorage.removeItem('folk_session');window.location.reload();}};
+  const handleLogout=()=>{setUser(null);sessionStorage.removeItem('folk_session');};
+
+  // Screen routing
+  if(!fbCfg)return<SetupScreen onSave={c=>{saveFBConfig(c);setFbCfg(c);setLoading(true);}}/>;
+  if(!user)return<AuthScreen db={db} onLoginSuccess={u=>{setUser(u);sessionStorage.setItem('folk_session',JSON.stringify(u));setSelectedWorkspaceKey(u.tenantKey);}}/>;
+  if(loading)return<LoadingScreen msg={`Loading ${user?.username}'s cloud workspace...`}/>;
+  if(fbErr)return<ErrorScreen msg={fbErr} onReset={handleResetFB}/>;
+
+  return (
+    <div className="app-container">
+      <Navbar user={user} allUsers={allUsers} selectedWorkspaceKey={selectedWorkspaceKey} onSwitchWorkspace={setSelectedWorkspaceKey} onOpenStock={()=>setShowStock(true)} onOpenIssue={()=>setShowIssue(true)} onOpenReturn={()=>setShowReturn(true)} onOpenCatalog={()=>setShowCatalog(true)} onOpenSettings={()=>setShowSettings(true)} onLogout={handleLogout} />
+      <div className="tabs-bar no-print">
+        <div className="tabs-container">
+          <button className={`tab-item ${tab==='dashboard'?'active':''}`} onClick={()=>setTab('dashboard')}><i className="fa-solid fa-gauge-high"></i> Store Inventory</button>
+          <button className={`tab-item ${tab==='stock'?'active':''}`} onClick={()=>setTab('stock')}><i className="fa-solid fa-boxes-stacked"></i> 1. Stock Receipts ({stock.length})</button>
+          <button className={`tab-item ${tab==='issues'?'active':''}`} onClick={()=>setTab('issues')}><i className="fa-solid fa-hand-holding-hand"></i> 2. Devotee Issues ({issues.length})</button>
+          <button className={`tab-item ${tab==='returns'?'active':''}`} onClick={()=>setTab('returns')}><i className="fa-solid fa-rotate-left"></i> 3. Book Returns ({returns.length})</button>
+          <button className={`tab-item ${tab==='analytics'?'active':''}`} onClick={()=>setTab('analytics')}><i className="fa-solid fa-chart-line"></i> 4. Analytics</button>
+          <button className={`tab-item ${tab==='bin'?'active':''}`} onClick={()=>setTab('bin')} style={{color:bin.length>0?'var(--accent-rose)':'inherit'}}><i className="fa-solid fa-trash-arrow-up"></i> Recycle Bin ({bin.length})</button>
+          {user?.role==='admin'&&<button className={`tab-item ${tab==='admin'?'active':''}`} onClick={()=>setTab('admin')} style={{color:'var(--accent-rose)',fontWeight:700}}><i className="fa-solid fa-user-shield"></i> 🔑 Master Admin Panel ({allUsers.length})</button>}
+        </div>
+      </div>
+      <main className="main-content">
+        {tab==='dashboard'&&<Dashboard stockVouchers={stock} issueVouchers={issues} returnVouchers={returns}/>}
+        {tab==='stock'&&<StockTable stockVouchers={stock} onOpen={()=>setShowStock(true)} onDelete={handleDelStock}/>}
+        {tab==='issues'&&<IssuesTable issueVouchers={issues} onOpen={()=>setShowIssue(true)} onDelete={handleDelIssue}/>}
+        {tab==='returns'&&<ReturnsTable returnVouchers={returns} onOpen={()=>setShowReturn(true)} onDelete={handleDelReturn}/>}
+        {tab==='analytics'&&<Analytics returnVouchers={returns}/>}
+        {tab==='bin'&&<RecycleBin bin={bin} onRestore={handleRestore} onPermDel={handlePermDel} onClear={handleClearBin}/>}
+        {tab==='admin'&&user?.role==='admin'&&<MasterAdminPanel allUsers={allUsers} db={db} selectedWorkspaceKey={selectedWorkspaceKey} onSwitchWorkspace={setSelectedWorkspaceKey}/>}
+      </main>
+      <StockModal isOpen={showStock} onClose={()=>setShowStock(false)} masterBooks={masterBooks} onAdd={handleAddStock}/>
+      <IssueModal isOpen={showIssue} onClose={()=>setShowIssue(false)} masterBooks={masterBooks} stockVouchers={stock} issueVouchers={issues} returnVouchers={returns} onAdd={handleAddIssue}/>
+      <ReturnModal isOpen={showReturn} onClose={()=>setShowReturn(false)} issueVouchers={issues} onAdd={handleAddReturn}/>
+      <CatalogModal isOpen={showCatalog} onClose={()=>setShowCatalog(false)} masterBooks={masterBooks} onAddBook={handleAddBook}/>
+      <SettingsModal isOpen={showSettings} onClose={()=>setShowSettings(false)} user={user} creds={creds} onSaveCreds={handleSaveCreds} onResetFB={handleResetFB}/>
+      {/* ISKCON Bhadaj Ahmedabad Footer */}
+      <footer className="no-print" style={{ marginTop: 'auto', borderTop: '1px solid var(--border-subtle)', background: 'rgba(11,17,30,0.97)', padding: '1rem 1.5rem', textAlign: 'center' }}>
+        <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1.25rem', flexWrap: 'wrap' }}>
+            <img src="folk_logo.png" alt="FOLK Life" style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', opacity: 0.85 }} />
+            <img src="iskcon_logo.jpg" alt="Srila Prabhupada's ISKCON Bhadaj Ahmedabad" style={{ height: '36px', objectFit: 'contain', opacity: 0.85, borderRadius: '4px' }} />
+          </div>
+          <p style={{ fontSize: '.72rem', color: 'var(--text-dim)', margin: 0 }}>
+            Managed by FOLK Life &nbsp;|&nbsp; Under Srila Prabhupada's ISKCON, Bhadaj — Ahmedabad &nbsp;|&nbsp; Hare Krishna 🙏
+          </p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
