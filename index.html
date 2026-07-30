@@ -708,8 +708,17 @@ function DevoteesDirectory({ devotees, getCol, TS, checkDeletePin }) {
 // ── Print View Component ────────────────────────────────────────
 function PrintView({ voucher, onClose }) {
   useEffect(() => {
+    // Intercept physical/browser back button to close the print view without leaving the app
+    window.history.pushState({ view: 'print' }, '');
+    const handlePopState = () => onClose();
+    window.addEventListener('popstate', handlePopState);
+    
     // Automatically trigger print dialog when opened
     setTimeout(() => { window.print(); }, 500);
+    
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
   }, []);
 
   const isStock = !!(voucher.stockNo || voucher.entryNo);
@@ -1698,8 +1707,8 @@ function App() {
   const [fbErr, setFbErr] = useState(null);
 
   const [creds, setCreds] = useState({username:'folk',password:'admin123',deletePin:'admin123'});
-  const [user, setUser] = useState(()=>{try{return JSON.parse(sessionStorage.getItem('folk_session'));}catch{return null;}});
-  const [selectedWorkspaceKey, setSelectedWorkspaceKey] = useState(()=>{try{return JSON.parse(sessionStorage.getItem('folk_session'))?.tenantKey||'folk';}catch{return 'folk';}});
+  const [user, setUser] = useState(()=>{try{return JSON.parse(localStorage.getItem('folk_session'));}catch{return null;}});
+  const [selectedWorkspaceKey, setSelectedWorkspaceKey] = useState(()=>{try{return JSON.parse(localStorage.getItem('folk_session'))?.tenantKey||'folk';}catch{return 'folk';}});
   const [allUsers, setAllUsers] = useState([]);
 
   const [masterBooks, setMasterBooks] = useState(CATALOG);
@@ -1792,27 +1801,33 @@ function App() {
   const handleAddStock=async(v)=>{
     if (v.firestoreId) {
       const { firestoreId, ...data } = v;
+      setStock(prev => prev.map(x => x.firestoreId === firestoreId ? {...x, ...data} : x));
       await getCol('stockVouchers').doc(firestoreId).update(data);
     } else {
       const { firestoreId, ...data } = v;
+      setStock(prev => [{...data, id: data.id || Date.now()}, ...prev]);
       await getCol('stockVouchers').add({...data,createdAt:TS()});
     }
   };
   const handleAddIssue=async(v)=>{
     if (v.firestoreId) {
       const { firestoreId, ...data } = v;
+      setIssues(prev => prev.map(x => x.firestoreId === firestoreId ? {...x, ...data} : x));
       await getCol('issueVouchers').doc(firestoreId).update(data);
     } else {
       const { firestoreId, ...data } = v;
+      setIssues(prev => [{...data, status:'Active', id: data.id || Date.now()}, ...prev]);
       await getCol('issueVouchers').add({...data,status:'Active',createdAt:TS()});
     }
   };
   const handleAddReturn=async(v)=>{
     if (v.firestoreId) {
       const { firestoreId, ...data } = v;
+      setReturns(prev => prev.map(x => x.firestoreId === firestoreId ? {...x, ...data} : x));
       await getCol('returnVouchers').doc(firestoreId).update(data);
     } else {
       const { firestoreId, ...data } = v;
+      setReturns(prev => [{...data, id: data.id || Date.now()}, ...prev]);
       const batch=db.batch();
       batch.set(getCol('returnVouchers').doc(),{...data,createdAt:TS()});
       const iv=issues.find(x=>x.issueNo===v.issueNo);
@@ -1921,12 +1936,12 @@ function App() {
     }
   };
   const handleAddBook=async(b)=>{const upd=[...masterBooks,b];await getCol('settings').doc('booksCatalog').set({books:upd});alert(`"${b.name}" added to catalog!`);};
-  const handleResetFB=()=>{if(confirm('Reset Firebase? You will need to re-enter your config.')){localStorage.removeItem('folk_fb_cfg');sessionStorage.removeItem('folk_session');window.location.reload();}};
-  const handleLogout=()=>{setUser(null);sessionStorage.removeItem('folk_session');};
+  const handleResetFB=()=>{if(confirm('Reset Firebase? You will need to re-enter your config.')){localStorage.removeItem('folk_fb_cfg');localStorage.removeItem('folk_session');window.location.reload();}};
+  const handleLogout=()=>{setUser(null);localStorage.removeItem('folk_session');};
 
   // Screen routing
   if(!fbCfg)return<SetupScreen onSave={c=>{saveFBConfig(c);setFbCfg(c);setLoading(true);}}/>;
-  if(!user)return<AuthScreen db={db} onLoginSuccess={u=>{setUser(u);sessionStorage.setItem('folk_session',JSON.stringify(u));setSelectedWorkspaceKey(u.tenantKey);}}/>;
+  if(!user)return<AuthScreen db={db} onLoginSuccess={u=>{setUser(u);localStorage.setItem('folk_session',JSON.stringify(u));setSelectedWorkspaceKey(u.tenantKey);}}/>;
   if(loading)return<LoadingScreen msg={`Loading ${user?.username}'s cloud workspace...`}/>;
   if(fbErr)return<ErrorScreen msg={fbErr} onReset={handleResetFB}/>;
 
