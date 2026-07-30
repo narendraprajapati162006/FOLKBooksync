@@ -46,7 +46,10 @@
     @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
     @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.8)}}
     /* Login */
-    .login-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;}
+    .login-wrapper{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.5rem;}
+    .pw-input-wrap{position:relative;width:100%;}
+    .pw-toggle{position:absolute;right:.8rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;}
+    .pw-toggle:hover{color:var(--text-main);}
     .login-card{background:rgba(15,23,42,.95);border:1px solid var(--border-highlight);border-radius:var(--radius-lg);padding:2.5rem;width:100%;max-width:440px;box-shadow:0 20px 50px rgba(0,0,0,.8),var(--shadow-glow);}
     .login-header{text-align:center;margin-bottom:2rem;}
     .login-logo{width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,var(--primary-amber),var(--primary-saffron));display:flex;align-items:center;justify-content:center;font-size:2rem;color:#fff;margin:0 auto 1rem;box-shadow:var(--shadow-glow);}
@@ -54,7 +57,7 @@
     .login-header p{font-size:.85rem;color:var(--text-muted);margin-top:.4rem;}
     .cloud-badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.3);color:var(--accent-emerald);padding:.3rem .75rem;border-radius:50px;font-size:.75rem;font-weight:600;margin:.75rem auto 0;width:fit-content;}
     /* Navbar */
-    .navbar{background:rgba(11,17,30,.95);border-bottom:1px solid var(--border-subtle);position:sticky;top:0;z-index:100;padding:.9rem 1.5rem;}
+    .navbar{background:rgba(11,17,30,0.5);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.05);position:sticky;top:0;z-index:100;padding:.9rem 1.5rem;}
     .nav-content{max-width:1400px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;}
     .brand{display:flex;align-items:center;gap:.75rem;}
     .brand-icon{width:42px;height:42px;border-radius:var(--radius-sm);background:linear-gradient(135deg,var(--primary-amber),var(--primary-saffron));display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;box-shadow:var(--shadow-glow);}
@@ -73,7 +76,7 @@
     .btn-purple{background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;}
     .btn-rose{background:linear-gradient(135deg,#f43f5e,#e11d48);color:#fff;}
     /* Tabs */
-    .tabs-bar{background:rgba(13,19,33,.8);border-bottom:1px solid var(--border-subtle);padding:.5rem 1.5rem;}
+    .tabs-bar{background:rgba(13,19,33,0.5);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.05);padding:.5rem 1.5rem;}
     .tabs-container{max-width:1400px;margin:0 auto;display:flex;gap:.5rem;overflow-x:auto;}
     .tab-item{display:flex;align-items:center;gap:.5rem;padding:.65rem 1.25rem;border-radius:var(--radius-sm);font-size:.9rem;font-weight:500;color:var(--text-muted);background:transparent;border:1px solid transparent;cursor:pointer;transition:all .2s ease;white-space:nowrap;}
     .tab-item:hover{color:var(--text-main);background:rgba(255,255,255,.04);}
@@ -96,7 +99,7 @@
     .stat-icon.purple{background:rgba(139,92,246,.15);color:var(--accent-purple);}
     .stat-value{font-size:1.85rem;font-weight:700;color:var(--text-main);font-family:'Outfit',sans-serif;}
     .stat-sub{font-size:.78rem;color:var(--text-dim);margin-top:.4rem;}
-    .glass-panel{background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--shadow-main);}
+    .glass-panel{background:rgba(15,23,42,0.5);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.08);border-top:1px solid rgba(255,255,255,0.15);border-left:1px solid rgba(255,255,255,0.12);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 8px 32px 0 rgba(0,0,0,0.37);}
     .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;}
     .panel-title{font-size:1.2rem;font-weight:600;display:flex;align-items:center;gap:.6rem;}
     .section-search-bar{display:flex;gap:1rem;align-items:center;margin-bottom:1.25rem;background:rgba(10,16,30,.6);padding:.75rem 1rem;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);}
@@ -120,9 +123,9 @@
     .badge-blue{background:rgba(59,130,246,.15);color:var(--accent-blue);border:1px solid rgba(59,130,246,.3);}
     .badge-purple{background:rgba(139,92,246,.15);color:var(--accent-purple);border:1px solid rgba(139,92,246,.3);}
     .badge-rose{background:rgba(244,63,94,.15);color:var(--accent-rose);border:1px solid rgba(244,63,94,.3);}
-    .modal-overlay{position:fixed;inset:0;background:rgba(5,8,15,.88);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;}
-    .modal-card{background:#0f172a;border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-md);width:100%;max-width:850px;box-shadow:0 25px 50px -12px rgba(0,0,0,.8);}
-    .modal-header{padding:1.2rem 1.5rem;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;}
+    .modal-overlay{position:fixed;inset:0;background:rgba(5,8,15,.75);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;}
+    .modal-card{background:rgba(15,23,42,0.65);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.1);border-top:1px solid rgba(255,255,255,0.15);border-radius:var(--radius-lg);width:100%;max-width:850px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.8),0 0 30px rgba(245,158,11,0.08);}
+    .modal-header{padding:1.2rem 1.5rem;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;align-items:center;}
     .close-btn{background:transparent;border:none;color:var(--text-muted);font-size:1.2rem;cursor:pointer;}
     .modal-body{padding:1.5rem;display:flex;flex-direction:column;gap:1.2rem;max-height:75vh;overflow-y:auto;}
     .modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border-subtle);display:flex;justify-content:flex-end;gap:.75rem;}
@@ -200,6 +203,29 @@ const { useState, useEffect } = React;
 
 const fmt = (n) => new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:0}).format(Number(n)||0);
 const fmtDate = (s) => { if(!s)return'-'; try{const d=new Date(s);return isNaN(d)?s:d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}catch{return s;} };
+
+const generateNextId = (type, vouchers, idField) => {
+  const d = new Date();
+  const yy = String(d.getFullYear()).slice(2);
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const prefix = `${type}-${yy}-${mm}${dd}-`;
+  let maxSeq = 0;
+  (vouchers || []).forEach(v => {
+    const id = v[idField];
+    if (typeof id === 'string' && id.startsWith(prefix)) {
+      const seq = parseInt(id.split('-').pop(), 10);
+      if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
+    } else if (typeof id === 'number') {
+      const strId = String(id);
+      if (strId.startsWith(prefix)) {
+        const seq = parseInt(strId.split('-').pop(), 10);
+        if (!isNaN(seq) && seq > maxSeq) maxSeq = seq;
+      }
+    }
+  });
+  return prefix + String(maxSeq + 1).padStart(2, '0');
+};
 
 const CATALOG = [
   {id:'b1',name:'Bhagavad Gita As It Is',category:'Major Work',defaultPrice:250},
@@ -340,6 +366,7 @@ function AuthScreen({ db, onLoginSuccess }) {
   const [err, setErr] = useState('');
   const [forgotStep, setForgotStep] = useState(1);
   const [recoveryUserDoc, setRecoveryUserDoc] = useState(null);
+  const [showP, setShowP] = useState(false);
 
   const cleanKey = (str) => str.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
 
@@ -478,7 +505,12 @@ function AuthScreen({ db, onLoginSuccess }) {
             </div>
             <div className="form-group" style={{ marginBottom: '1.2rem' }}>
               <label>Password *</label>
-              <input type="password" className="form-control" placeholder="Enter password" value={p} onChange={e=>setP(e.target.value)} required />
+              <div className="pw-input-wrap">
+                <input type={showP ? "text" : "password"} className="form-control" placeholder="Enter password" value={p} onChange={e=>setP(e.target.value)} required style={{ paddingRight: '2.5rem' }} />
+                <button type="button" className="pw-toggle" onClick={() => setShowP(!showP)} tabIndex="-1">
+                  <i className={`fa-regular ${showP ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                </button>
+              </div>
               <div style={{ textAlign: 'right', marginTop: '.35rem' }}>
                 <button type="button" style={{ background: 'none', border: 'none', color: 'var(--accent-blue)', fontSize: '.78rem', cursor: 'pointer', textDecoration: 'underline', padding: 0 }} onClick={() => { setMode('forgot'); setErr(''); setForgotStep(1); }}>
                   Forgot Password?
@@ -498,8 +530,20 @@ function AuthScreen({ db, onLoginSuccess }) {
               <input type="text" className="form-control" placeholder="Unique username" value={u} onChange={e=>setU(e.target.value)} required />
             </div>
             <div className="form-grid" style={{ marginBottom: '.75rem' }}>
-              <div className="form-group"><label>Password *</label><input type="password" className="form-control" value={p} onChange={e=>setP(e.target.value)} required /></div>
-              <div className="form-group"><label>Confirm Password *</label><input type="password" className="form-control" value={cp} onChange={e=>setCp(e.target.value)} required /></div>
+              <div className="form-group">
+                <label>Password *</label>
+                <div className="pw-input-wrap">
+                  <input type={showP ? "text" : "password"} className="form-control" value={p} onChange={e=>setP(e.target.value)} required style={{ paddingRight: '2.5rem' }} />
+                  <button type="button" className="pw-toggle" onClick={() => setShowP(!showP)} tabIndex="-1"><i className={`fa-regular ${showP ? 'fa-eye-slash' : 'fa-eye'}`}></i></button>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Confirm Password *</label>
+                <div className="pw-input-wrap">
+                  <input type={showP ? "text" : "password"} className="form-control" value={cp} onChange={e=>setCp(e.target.value)} required style={{ paddingRight: '2.5rem' }} />
+                  <button type="button" className="pw-toggle" onClick={() => setShowP(!showP)} tabIndex="-1"><i className={`fa-regular ${showP ? 'fa-eye-slash' : 'fa-eye'}`}></i></button>
+                </div>
+              </div>
             </div>
             <div className="form-group" style={{ marginBottom: '.75rem' }}>
               <label>Security Question (for password reset) *</label>
@@ -543,7 +587,10 @@ function AuthScreen({ db, onLoginSuccess }) {
             </div>
             <div className="form-group" style={{ marginBottom: '1.2rem' }}>
               <label>New Password *</label>
-              <input type="password" className="form-control" placeholder="New password" value={newP} onChange={e=>setNewP(e.target.value)} required />
+              <div className="pw-input-wrap">
+                <input type={showP ? "text" : "password"} className="form-control" placeholder="New password" value={newP} onChange={e=>setNewP(e.target.value)} required style={{ paddingRight: '2.5rem' }} />
+                <button type="button" className="pw-toggle" onClick={() => setShowP(!showP)} tabIndex="-1"><i className={`fa-regular ${showP ? 'fa-eye-slash' : 'fa-eye'}`}></i></button>
+              </div>
             </div>
             <button type="submit" className="nav-btn btn-rose" style={{ width: '100%', justifyContent: 'center', padding: '.8rem' }}>
               <i className="fa-solid fa-key"></i> Reset Password & Login
@@ -552,7 +599,7 @@ function AuthScreen({ db, onLoginSuccess }) {
         )}
       </div>
       <footer style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '.75rem', opacity: 0.6 }}>
-        © {new Date().getFullYear()} ISKCON Bhadaj, Ahmedabad | Managed by FOLK
+        &copy; {new Date().getFullYear()} All rights reserved &nbsp;|&nbsp; ISKCON Bhadaj, Ahmedabad &nbsp;|&nbsp; Managed by FOLK
       </footer>
     </div>
   );
@@ -589,6 +636,198 @@ function Navbar({ user, allUsers, selectedWorkspaceKey, onSwitchWorkspace, onOpe
         </div>
       </div>
     </header>
+  );
+}
+
+// ── Dashboard ─────────────────────────────────────────────────
+// ── Devotees Directory ─────────────────────────────────────────
+function DevoteesDirectory({ devotees, getCol, TS, checkDeletePin }) {
+  const [showAdd, setShowAdd] = useState(false);
+  const [name, setName] = useState('');
+  const [contact, setContact] = useState('');
+
+  const handleAdd = async (e) => {
+    e.preventDefault();
+    if(!name.trim()) return alert('Name is required');
+    await getCol('devotees').add({
+      name: name.trim(),
+      contact: contact.trim(),
+      createdAt: TS()
+    });
+    setShowAdd(false);
+    setName('');
+    setContact('');
+  };
+
+  const handleDel = async (d) => {
+    if(!checkDeletePin()) return;
+    if(confirm(`Delete devotee "${d.name}"?`)) {
+      const { firestoreId, ...data } = d;
+      await getCol('devotees').doc(firestoreId).delete();
+    }
+  };
+
+  return (
+    <div className="glass-panel">
+      <div className="panel-header">
+        <div className="panel-title"><i className="fa-solid fa-users" style={{color:'var(--accent-blue)'}}></i> Devotees Directory</div>
+        <button className="nav-btn btn-primary" onClick={()=>setShowAdd(true)}><i className="fa-solid fa-user-plus"></i> Register Devotee</button>
+      </div>
+
+      {showAdd && (
+        <form onSubmit={handleAdd} style={{background:'rgba(255,255,255,.05)',padding:'1rem',borderRadius:'var(--radius-sm)',marginBottom:'1rem',border:'1px solid var(--border-highlight)'}}>
+          <div className="form-grid">
+            <div className="form-group"><label>Devotee Name *</label><input type="text" className="form-control" value={name} onChange={e=>setName(e.target.value)} required placeholder="e.g. Ram Sharma" /></div>
+            <div className="form-group"><label>Contact Number (Optional)</label><input type="text" className="form-control" value={contact} onChange={e=>setContact(e.target.value)} placeholder="e.g. 9876543210" /></div>
+          </div>
+          <div style={{marginTop:'.75rem',display:'flex',gap:'.5rem'}}>
+            <button type="submit" className="nav-btn btn-primary">Save Devotee</button>
+            <button type="button" className="nav-btn btn-secondary" onClick={()=>setShowAdd(false)}>Cancel</button>
+          </div>
+        </form>
+      )}
+
+      <div className="table-responsive">
+        <table className="custom-table">
+          <thead><tr><th>Name</th><th>Contact Number</th><th style={{width:'50px'}}>Action</th></tr></thead>
+          <tbody>
+            {devotees.length===0 ? <tr><td colSpan="3" style={{textAlign:'center',padding:'2rem',color:'var(--text-muted)'}}>No devotees registered. Click "Register Devotee".</td></tr> : devotees.map(d=>(
+              <tr key={d.firestoreId}>
+                <td style={{fontWeight:600}}>{d.name}</td>
+                <td>{d.contact || <span style={{color:'var(--text-muted)'}}>-</span>}</td>
+                <td><button type="button" className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>handleDel(d)}><i className="fa-solid fa-trash-can"></i></button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// ── Print View Component ────────────────────────────────────────
+function PrintView({ voucher, onClose }) {
+  useEffect(() => {
+    // Automatically trigger print dialog when opened
+    setTimeout(() => { window.print(); }, 500);
+  }, []);
+
+  const isStock = !!(voucher.stockNo || voucher.entryNo);
+  const isIssue = !!voucher.issueNo && !voucher.returnNo;
+  const isReturn = !!voucher.returnNo;
+
+  const no = isStock ? (voucher.stockNo || voucher.entryNo) : isIssue ? voucher.issueNo : voucher.returnNo;
+  const dt = isStock ? (voucher.receiptDate || voucher.date) : isIssue ? voucher.issueDate : voucher.returnDate;
+  const title = isStock ? 'Stock Receipt Voucher' : isIssue ? 'Books Issue Voucher' : 'Return & Collection Voucher';
+  
+  return (
+    <div style={{ background: '#fff', color: '#000', minHeight: '100vh', padding: '2rem', fontFamily: 'Inter, sans-serif' }}>
+      <div className="no-print" style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+        <button onClick={() => window.print()} className="nav-btn btn-indigo"><i className="fa-solid fa-print"></i> Print PDF</button>
+        <button onClick={onClose} className="nav-btn btn-secondary"><i className="fa-solid fa-arrow-left"></i> Back to App</button>
+      </div>
+
+      <div style={{ maxWidth: '800px', margin: '0 auto', border: '1px solid #ccc', padding: '2rem', position: 'relative' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #333', paddingBottom: '1rem', marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <img src="folk_logo.png" alt="FOLK Logo" style={{ height: '60px', borderRadius: '50%' }} />
+            <div>
+              <h2 style={{ margin: 0, fontSize: '1.5rem', color: '#8b5cf6' }}>FOLK Life</h2>
+              <p style={{ margin: '0.2rem 0 0', fontSize: '0.85rem', color: '#555' }}>Book Distribution Department</p>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <h1 style={{ margin: 0, fontSize: '1.2rem', textTransform: 'uppercase', color: '#333' }}>{title}</h1>
+            <p style={{ margin: '0.2rem 0 0', fontSize: '0.9rem', fontWeight: 600 }}>Receipt No: {no}</p>
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>Date: {fmtDate(dt)}</p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', fontSize: '0.95rem' }}>
+          <div>
+            {isStock && <><p style={{ margin: '0 0 .3rem' }}><b>Category:</b> STOCK IN</p><p style={{ margin: '0 0 .3rem' }}><b>Received From:</b> {voucher.receiverName || voucher.receivedBy}</p></>}
+            {isIssue && <><p style={{ margin: '0 0 .3rem' }}><b>Category:</b> ISSUE</p><p style={{ margin: '0 0 .3rem' }}><b>Issued To:</b> {voucher.devoteeName} {voucher.devoteeContact?`(${voucher.devoteeContact})`:''} {voucher.devoteeType==='Group'?'[Team Leader]':''}</p><p style={{ margin: 0 }}><b>Location:</b> {voucher.location}</p></>}
+            {isReturn && <><p style={{ margin: '0 0 .3rem' }}><b>Category:</b> RETURN</p><p style={{ margin: '0 0 .3rem' }}><b>Returned By:</b> {voucher.devoteeName} {voucher.devoteeContact?`(${voucher.devoteeContact})`:''} {voucher.devoteeType==='Group'?'[Team Leader]':''}</p><p style={{ margin: 0 }}><b>Original Issue No:</b> {voucher.issueNo}</p></>}
+          </div>
+        </div>
+
+        {(isIssue || isReturn) && voucher.devoteeType === 'Group' && voucher.groupMembers?.length > 0 && (
+          <div style={{ marginBottom: '2rem', fontSize: '0.9rem', background: '#f9fafb', padding: '1rem', border: '1px solid #e5e7eb' }}>
+            <b>Team Members:</b>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', marginTop: '0.5rem' }}>
+              {voucher.groupMembers.map((m, i) => (
+                <div key={i}>• {m.name} {m.contact ? `(${m.contact})` : ''}</div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', fontSize: '0.9rem' }}>
+          <thead>
+            <tr style={{ background: '#f5f5f5', borderBottom: '1px solid #ccc', borderTop: '1px solid #ccc' }}>
+              <th style={{ padding: '.75rem', textAlign: 'left' }}>S.No</th>
+              <th style={{ padding: '.75rem', textAlign: 'left' }}>Book Title</th>
+              <th style={{ padding: '.75rem', textAlign: 'left' }}>Language</th>
+              <th style={{ padding: '.75rem', textAlign: 'right' }}>Price ₹</th>
+              {isStock && <th style={{ padding: '.75rem', textAlign: 'right' }}>Qty Received</th>}
+              {isIssue && <th style={{ padding: '.75rem', textAlign: 'right' }}>Qty Issued</th>}
+              {isReturn && <>
+                <th style={{ padding: '.75rem', textAlign: 'right' }}>Issued</th>
+                <th style={{ padding: '.75rem', textAlign: 'right' }}>Ret</th>
+                <th style={{ padding: '.75rem', textAlign: 'right' }}>Sold</th>
+                <th style={{ padding: '.75rem', textAlign: 'right' }}>Collection</th>
+              </>}
+            </tr>
+          </thead>
+          <tbody>
+            {voucher.items.map((it, i) => (
+              <tr key={i} style={{ borderBottom: '1px solid #eee' }}>
+                <td style={{ padding: '.75rem' }}>{i + 1}</td>
+                <td style={{ padding: '.75rem' }}>{it.bookName}</td>
+                <td style={{ padding: '.75rem' }}>{it.language || 'English'}</td>
+                <td style={{ padding: '.75rem', textAlign: 'right' }}>{it.price}</td>
+                {isStock && <td style={{ padding: '.75rem', textAlign: 'right' }}>{it.quantity}</td>}
+                {isIssue && <td style={{ padding: '.75rem', textAlign: 'right' }}>{it.quantityIssued}</td>}
+                {isReturn && <>
+                  <td style={{ padding: '.75rem', textAlign: 'right' }}>{it.quantityIssued}</td>
+                  <td style={{ padding: '.75rem', textAlign: 'right' }}>{it.quantityReturned}</td>
+                  <td style={{ padding: '.75rem', textAlign: 'right' }}>{it.quantitySold}</td>
+                  <td style={{ padding: '.75rem', textAlign: 'right', fontWeight: 600 }}>{fmt(it.amountCollected)}</td>
+                </>}
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr style={{ borderTop: '2px solid #ccc', fontWeight: 'bold' }}>
+              <td colSpan="4" style={{ padding: '.75rem', textAlign: 'right' }}>Total:</td>
+              {isStock && <td style={{ padding: '.75rem', textAlign: 'right' }}>{voucher.totalQty} Pcs</td>}
+              {isIssue && <td style={{ padding: '.75rem', textAlign: 'right' }}>{voucher.totalIssuedQty} Pcs</td>}
+              {isReturn && <>
+                <td style={{ padding: '.75rem', textAlign: 'right' }}></td>
+                <td style={{ padding: '.75rem', textAlign: 'right' }}>{voucher.totalReturnedQty} Pcs</td>
+                <td style={{ padding: '.75rem', textAlign: 'right' }}>{voucher.totalSoldQty} Pcs</td>
+                <td style={{ padding: '.75rem', textAlign: 'right' }}>{fmt(voucher.totalAmountCollected)}</td>
+              </>}
+            </tr>
+          </tfoot>
+        </table>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '4rem', fontSize: '0.9rem' }}>
+          <div style={{ textAlign: 'center', width: '150px', borderTop: '1px solid #333', paddingTop: '.5rem' }}>Issuer / Receiver Sign</div>
+          <div style={{ textAlign: 'center', width: '150px', borderTop: '1px solid #333', paddingTop: '.5rem' }}>Authorized Signatory</div>
+        </div>
+        
+        <div style={{ textAlign: 'center', marginTop: '3rem', borderTop: '1px solid #eee', paddingTop: '1rem' }}>
+          <img src="iskcon_logo.jpg" alt="ISKCON Logo" style={{ height: '40px', marginBottom: '0.5rem', opacity: 0.8 }} />
+          <p style={{ fontSize: '0.75rem', color: '#666', margin: 0 }}>
+            Srila Prabhupada's ISKCON Bhadaj, Ahmedabad
+          </p>
+          <p style={{ textAlign: 'center', fontSize: '0.75rem', color: '#777', margin: '0.2rem 0 0' }}>
+            This is a computer generated receipt. Thank you for participating in Srila Prabhupada's Book Distribution.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -639,19 +878,35 @@ function Dashboard({ stockVouchers, issueVouchers, returnVouchers }) {
 }
 
 // ── Stock Modal ───────────────────────────────────────────────
-function StockModal({ isOpen, onClose, masterBooks, onAdd }) {
+function StockModal({ isOpen, onClose, masterBooks, stockVouchers, onAdd, editData }) {
   const today=new Date().toISOString().split('T')[0];
-  const [entryNo,setEntryNo]=useState(`STK-${new Date().getFullYear()}-${Math.floor(100+Math.random()*900)}`);
+  const [entryNo,setEntryNo]=useState('');
   const [date,setDate]=useState(today);
   const [recvBy,setRecvBy]=useState('FOLK Main Store');
   const [items,setItems]=useState([{bookName:masterBooks[0]?.name||'Bhagavad Gita As It Is',language:'English',quantity:50,price:masterBooks[0]?.defaultPrice||250}]);
+  useEffect(() => {
+    if (isOpen) {
+      if (editData) {
+        setEntryNo(editData.entryNo);
+        setDate(editData.date);
+        setRecvBy(editData.receivedBy);
+        setItems(editData.items);
+      } else {
+        setEntryNo(generateNextId('STK', stockVouchers, 'entryNo'));
+        setDate(today);
+        setRecvBy('FOLK Main Store');
+        setItems([{bookName:masterBooks[0]?.name||'Bhagavad Gita As It Is',language:'English',quantity:50,price:masterBooks[0]?.defaultPrice||250}]);
+      }
+    }
+  }, [isOpen, editData, stockVouchers, masterBooks, today]);
+
   if(!isOpen)return null;
   const addRow=()=>setItems([...items,{bookName:masterBooks[0]?.name,language:'Hindi',quantity:10,price:masterBooks[0]?.defaultPrice||250}]);
   const remRow=(i)=>{if(items.length===1)return alert('At least one row required.');setItems(items.filter((_,j)=>j!==i));};
   const chg=(i,f,v)=>{const n=[...items];n[i][f]=v;if(f==='bookName'){const m=masterBooks.find(b=>b.name===v);if(m)n[i].price=m.defaultPrice;}setItems(n);};
   const totQty=items.reduce((s,x)=>s+(Number(x.quantity)||0),0);
   const totAmt=items.reduce((s,x)=>s+(Number(x.quantity)||0)*(Number(x.price)||0),0);
-  const submit=(e)=>{e.preventDefault();if(totQty<=0)return alert('Enter valid quantities.');onAdd({id:`stk-${Date.now()}`,entryNo,date,receivedBy:recvBy,items:items.map(x=>({...x,quantity:Number(x.quantity)||0,price:Number(x.price)||0,lineTotal:(Number(x.quantity)||0)*(Number(x.price)||0)})),totalQty:totQty,totalAmount:totAmt});onClose();};
+  const submit=(e)=>{e.preventDefault();if(totQty<=0)return alert('Enter valid quantities.');onAdd({id:editData?editData.id:`stk-${Date.now()}`,firestoreId:editData?.firestoreId,entryNo,date,receivedBy:recvBy,items:items.map(x=>({...x,quantity:Number(x.quantity)||0,price:Number(x.price)||0,lineTotal:(Number(x.quantity)||0)*(Number(x.price)||0)})),totalQty:totQty,totalAmount:totAmt});onClose();};
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={e=>e.stopPropagation()}>
@@ -697,13 +952,47 @@ function StockModal({ isOpen, onClose, masterBooks, onAdd }) {
 }
 
 // ── Issue Modal ───────────────────────────────────────────────
-function IssueModal({ isOpen, onClose, masterBooks, stockVouchers, issueVouchers, returnVouchers, onAdd }) {
+function IssueModal({ isOpen, onClose, masterBooks, stockVouchers, issueVouchers, returnVouchers, devotees, onAdd, editData }) {
   const today=new Date().toISOString().split('T')[0];
-  const [issueNo,setIssueNo]=useState(`ISS-${new Date().getFullYear()}-${Math.floor(100+Math.random()*900)}`);
+  const [issueNo,setIssueNo]=useState('');
   const [issueDate,setIssueDate]=useState(today);
   const [devName,setDevName]=useState('');
+  const [devoteeType, setDevoteeType] = useState('Solo');
+  const [groupMembers, setGroupMembers] = useState([]);
   const [loc,setLoc]=useState('Metro Station Plaza');
-  const [items,setItems]=useState([{bookName:masterBooks[0]?.name||'Bhagavad Gita As It Is',language:'English',quantityIssued:10,price:masterBooks[0]?.defaultPrice||250}]);
+  const getPrice = (bn, lang) => {
+    for (let sv of stockVouchers) {
+      for (let item of sv.items) {
+        if (item.bookName === bn && (item.language || 'English') === lang) return item.price;
+      }
+    }
+    const m = masterBooks.find(b=>b.name===bn);
+    return m?.defaultPrice || 250;
+  };
+  const [items,setItems]=useState([{bookName:masterBooks[0]?.name||'Bhagavad Gita As It Is',language:'English',quantityIssued:10,price:getPrice(masterBooks[0]?.name||'Bhagavad Gita As It Is','English')}]);
+  
+  useEffect(() => {
+    if (isOpen) {
+      if (editData) {
+        setIssueNo(editData.issueNo);
+        setIssueDate(editData.issueDate);
+        setDevName(editData.devoteeName);
+        setDevoteeType(editData.devoteeType || 'Solo');
+        setGroupMembers(editData.groupMembers || []);
+        setLoc(editData.location);
+        setItems(editData.items);
+      } else {
+        setIssueNo(generateNextId('ISS', issueVouchers, 'issueNo'));
+        setIssueDate(today);
+        setDevName('');
+        setDevoteeType('Solo');
+        setGroupMembers([]);
+        setLoc('Metro Station Plaza');
+        setItems([{bookName:masterBooks[0]?.name||'Bhagavad Gita As It Is',language:'English',quantityIssued:10,price:getPrice(masterBooks[0]?.name||'Bhagavad Gita As It Is','English')}]);
+      }
+    }
+  }, [isOpen, editData, issueVouchers, masterBooks, today]);
+
   if(!isOpen)return null;
   const avail=(bn,lang)=>{
     let r=0;stockVouchers.forEach(sv=>sv.items.forEach(i=>{if(i.bookName===bn&&(i.language||'English')===lang)r+=Number(i.quantity)||0;}));
@@ -713,10 +1002,35 @@ function IssueModal({ isOpen, onClose, masterBooks, stockVouchers, issueVouchers
   };
   let errMsg=null;
   for(const x of items){if((Number(x.quantityIssued)||0)>avail(x.bookName,x.language)){errMsg=`Only ${avail(x.bookName,x.language)} copies of "${x.bookName}" (${x.language}) available in store.`;break;}}
-  const addRow=()=>setItems([...items,{bookName:masterBooks[0]?.name,language:'Hindi',quantityIssued:5,price:masterBooks[0]?.defaultPrice||250}]);
+  const addRow=()=>setItems([...items,{bookName:masterBooks[0]?.name,language:'Hindi',quantityIssued:5,price:getPrice(masterBooks[0]?.name,'Hindi')}]);
   const remRow=(i)=>{if(items.length===1)return alert('At least one item required.');setItems(items.filter((_,j)=>j!==i));};
-  const chg=(i,f,v)=>{const n=[...items];n[i][f]=v;if(f==='bookName'){const m=masterBooks.find(b=>b.name===v);if(m)n[i].price=m.defaultPrice;}setItems(n);};
-  const submit=(e)=>{e.preventDefault();if(errMsg){alert(errMsg);return;}if(!devName.trim())return alert('Enter Devotee Name.');onAdd({id:`iss-${Date.now()}`,issueNo,issueDate,devoteeName:devName.trim(),location:loc.trim(),items:items.map(x=>({...x,quantityIssued:Number(x.quantityIssued)||0,price:Number(x.price)||0})),totalIssuedQty:items.reduce((s,x)=>s+(Number(x.quantityIssued)||0),0),status:'Active'});onClose();};
+  const chg=(i,f,v)=>{
+    const n=[...items];
+    n[i][f]=v;
+    if(f==='bookName'||f==='language') n[i].price=getPrice(n[i].bookName, n[i].language);
+    setItems(n);
+  };
+  const submit=(e)=>{
+    e.preventDefault();
+    if(errMsg){alert(errMsg);return;}
+    if(!devName.trim())return alert('Select Devotee/Team Leader.');
+    const leader = (devotees||[]).find(x=>x.name===devName);
+    onAdd({
+      id:editData?editData.id:`iss-${Date.now()}`,
+      firestoreId:editData?.firestoreId,
+      issueNo,
+      issueDate,
+      devoteeName:devName.trim(),
+      devoteeContact: leader?.contact || '',
+      devoteeType,
+      groupMembers: devoteeType === 'Group' ? groupMembers : [],
+      location:loc.trim(),
+      items:items.map(x=>({...x,quantityIssued:Number(x.quantityIssued)||0,price:Number(x.price)||0})),
+      totalIssuedQty:items.reduce((s,x)=>s+(Number(x.quantityIssued)||0),0),
+      status:'Active'
+    });
+    onClose();
+  };
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={e=>e.stopPropagation()}>
@@ -728,7 +1042,49 @@ function IssueModal({ isOpen, onClose, masterBooks, stockVouchers, issueVouchers
               <div className="form-group"><label>Issue Date *</label><input type="date" className="form-control" value={issueDate} onChange={e=>setIssueDate(e.target.value)} required /></div>
             </div>
             <div className="form-grid">
-              <div className="form-group"><label>Devotee Name *</label><input type="text" className="form-control" placeholder="Devotee Name" value={devName} onChange={e=>setDevName(e.target.value)} required /></div>
+              <div className="form-group"><label>Devotee / Team Leader *</label>
+                <select className="form-control" value={devName} onChange={e=>setDevName(e.target.value)} required>
+                  <option value="">-- Select Devotee --</option>
+                  {(devotees||[]).map(d=><option key={d.firestoreId} value={d.name}>{d.name} {d.contact?`(${d.contact})`:''}</option>)}
+                </select>
+              </div>
+              <div className="form-group"><label>Distribution Type *</label>
+                <select className="form-control" value={devoteeType} onChange={e=>setDevoteeType(e.target.value)}>
+                  <option value="Solo">Solo Distribution</option>
+                  <option value="Group">Group / Team</option>
+                </select>
+              </div>
+            </div>
+            
+            {devoteeType === 'Group' && (
+              <div className="form-group" style={{ marginBottom: '1rem', background: 'rgba(255,255,255,.05)', padding: '1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+                <label style={{ color: 'var(--accent-purple)' }}>Add Team Members</label>
+                <div style={{ display: 'flex', gap: '.5rem', marginBottom: '.5rem' }}>
+                  <select className="form-control" id="addMemberSelect">
+                    <option value="">Select group member...</option>
+                    {(devotees||[]).filter(d => d.name !== devName && !groupMembers.some(g => g.name === d.name)).map(d => (
+                      <option key={d.firestoreId} value={JSON.stringify({name: d.name, contact: d.contact})}>{d.name} {d.contact?`(${d.contact})`:''}</option>
+                    ))}
+                  </select>
+                  <button type="button" className="nav-btn btn-primary" onClick={()=>{
+                    const v = document.getElementById('addMemberSelect').value;
+                    if(v) { setGroupMembers([...groupMembers, JSON.parse(v)]); document.getElementById('addMemberSelect').value = ''; }
+                  }}>Add</button>
+                </div>
+                {groupMembers.length > 0 && (
+                  <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
+                    {groupMembers.map((gm, i) => (
+                      <span key={i} className="badge badge-purple" style={{ display: 'flex', alignItems: 'center', gap: '.5rem' }}>
+                        {gm.name}
+                        <i className="fa-solid fa-xmark" style={{ cursor: 'pointer' }} onClick={() => setGroupMembers(groupMembers.filter((_,j) => j !== i))}></i>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div className="form-grid">
               <div className="form-group"><label>Distribution Location *</label><input type="text" className="form-control" placeholder="Location / Place" value={loc} onChange={e=>setLoc(e.target.value)} required /></div>
             </div>
             {errMsg&&<div className="error-banner"><i className="fa-solid fa-triangle-exclamation" style={{fontSize:'1.2rem'}}></i><span>{errMsg}</span></div>}
@@ -738,13 +1094,14 @@ function IssueModal({ isOpen, onClose, masterBooks, stockVouchers, issueVouchers
                 <button type="button" className="nav-btn btn-secondary" style={{padding:'.3rem .7rem',fontSize:'.8rem'}} onClick={addRow}><i className="fa-solid fa-plus"></i> Add Row</button>
               </div>
               <table className="multi-item-table">
-                <thead><tr><th>Book Title</th><th style={{width:'130px'}}>Language</th><th style={{width:'90px'}}>Qty Issued</th><th style={{width:'110px'}}>Store Avail</th><th style={{width:'36px'}}></th></tr></thead>
+                <thead><tr><th>Book Title</th><th style={{width:'110px'}}>Language</th><th style={{width:'70px'}}>Qty</th><th style={{width:'80px'}}>Price ₹</th><th style={{width:'90px'}}>Store Avail</th><th style={{width:'36px'}}></th></tr></thead>
                 <tbody>
                   {items.map((x,i)=>{const av=avail(x.bookName,x.language);const over=(Number(x.quantityIssued)||0)>av;return(
                     <tr key={i}>
                       <td><select className="form-control" value={x.bookName} onChange={e=>chg(i,'bookName',e.target.value)}>{masterBooks.map(b=><option key={b.id} value={b.name}>{b.name}</option>)}</select></td>
                       <td><select className="form-control" value={x.language} onChange={e=>chg(i,'language',e.target.value)}>{LANGS.map(l=><option key={l}>{l}</option>)}</select></td>
                       <td><input type="number" min="1" className="form-control" style={{borderColor:over?'var(--accent-rose)':'var(--border-subtle)'}} value={x.quantityIssued} onChange={e=>chg(i,'quantityIssued',e.target.value)} required /></td>
+                      <td><input type="number" min="1" className="form-control" value={x.price} onChange={e=>chg(i,'price',e.target.value)} required /></td>
                       <td><span className={`badge ${av<=0?'badge-rose':'badge-emerald'}`}>{av} Pcs</span></td>
                       <td><button type="button" className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>remRow(i)}><i className="fa-solid fa-trash-can"></i></button></td>
                     </tr>
@@ -761,13 +1118,30 @@ function IssueModal({ isOpen, onClose, masterBooks, stockVouchers, issueVouchers
 }
 
 // ── Return Modal ──────────────────────────────────────────────
-function ReturnModal({ isOpen, onClose, issueVouchers, onAdd }) {
+function ReturnModal({ isOpen, onClose, issueVouchers, returnVouchers, onAdd, editData }) {
   const today=new Date().toISOString().split('T')[0];
-  const active=issueVouchers.filter(i=>i.status!=='Returned');
+  const [returnNo,setReturnNo]=useState('');
+  const [returnDate,setReturnDate]=useState(today);
+  const [items,setItems]=useState([]);
+  const active=issueVouchers.filter(i=>i.status!=='Returned' || (editData && i.issueNo === editData.issueNo));
   const [filter,setFilter]=useState('');
   const [selNo,setSelNo]=useState('');
-  const [retDate,setRetDate]=useState(today);
-  const [items,setItems]=useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (editData) {
+        setReturnNo(editData.returnNo);
+        setReturnDate(editData.returnDate);
+        setSelNo(editData.issueNo);
+        setItems(editData.items);
+      } else {
+        setReturnNo(generateNextId('RET', returnVouchers, 'returnNo'));
+        if(active.length>0){const f=active[0];setSelNo(f.issueNo);setItems(f.items.map(x=>({...x,quantityReturned:0})));}
+      }
+    }
+  }, [isOpen, editData, returnVouchers]);
+
+  if(!isOpen)return null;
   const filtered=active.filter(i=>i.issueNo.toLowerCase().includes(filter.toLowerCase().trim())||i.devoteeName.toLowerCase().includes(filter.toLowerCase().trim())||i.location.toLowerCase().includes(filter.toLowerCase().trim()));
   useEffect(()=>{if(active.length>0){const f=filtered[0]||active[0];setSelNo(f.issueNo);setItems(f.items.map(x=>({...x,quantityReturned:0})));}}, [isOpen,filter]);
   if(!isOpen)return null;
@@ -778,7 +1152,27 @@ function ReturnModal({ isOpen, onClose, issueVouchers, onAdd }) {
   const totRet=proc.reduce((s,x)=>s+x.quantityReturned,0);
   const totSold=proc.reduce((s,x)=>s+x.quantitySold,0);
   const totCol=proc.reduce((s,x)=>s+x.amountCollected,0);
-  const submit=(e)=>{e.preventDefault();if(!cur)return alert('Select an issue voucher.');onAdd({id:`ret-${Date.now()}`,issueNo:cur.issueNo,returnDate:retDate,devoteeName:cur.devoteeName,location:cur.location,items:proc,totalReturnedQty:totRet,totalSoldQty:totSold,totalAmountCollected:totCol});onClose();};
+  const submit=(e)=>{
+    e.preventDefault();
+    if(!cur)return alert('Select an issue voucher.');
+    onAdd({
+      id:editData?editData.id:`ret-${Date.now()}`,
+      firestoreId:editData?.firestoreId,
+      returnNo,
+      issueNo:cur.issueNo,
+      returnDate,
+      devoteeName:cur.devoteeName,
+      devoteeContact:cur.devoteeContact || '',
+      devoteeType: cur.devoteeType || 'Solo',
+      groupMembers: cur.groupMembers || [],
+      location:cur.location,
+      items:proc,
+      totalReturnedQty:totRet,
+      totalSoldQty:totSold,
+      totalAmountCollected:totCol
+    });
+    onClose();
+  };
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-card" onClick={e=>e.stopPropagation()}>
@@ -792,7 +1186,10 @@ function ReturnModal({ isOpen, onClose, issueVouchers, onAdd }) {
                   {filtered.length===0?<option value="">No active vouchers found</option>:filtered.map(i=><option key={i.id} value={i.issueNo}>{i.issueNo} — {i.devoteeName} ({i.totalIssuedQty} Books) [{i.location}]</option>)}
                 </select>
               </div>
-              <div className="form-group"><label>Return Date *</label><input type="date" className="form-control" value={retDate} onChange={e=>setRetDate(e.target.value)} required /></div>
+            </div>
+            <div className="form-grid" style={{ marginTop: '1rem' }}>
+              <div className="form-group"><label>Return Voucher No *</label><input type="text" className="form-control" value={returnNo} onChange={e=>setReturnNo(e.target.value)} required /></div>
+              <div className="form-group"><label>Return Date *</label><input type="date" className="form-control" value={returnDate} onChange={e=>setReturnDate(e.target.value)} required /></div>
             </div>
             {cur&&(
               <div style={{borderTop:'1px solid var(--border-subtle)',paddingTop:'1rem'}}>
@@ -873,11 +1270,12 @@ function SettingsModal({ isOpen, onClose, user, creds, onSaveCreds, onResetFB })
   const [u, setU] = useState(creds.username || 'folk');
   const [p, setP] = useState(creds.password || 'admin123');
   const [dp, setDp] = useState(creds.deletePin || creds.password || 'admin123');
+  const [participate, setParticipate] = useState(creds.participateLeaderboard !== false);
   if (!isOpen) return null;
   const submit = (e) => {
     e.preventDefault();
     if (!u.trim() || !p.trim() || !dp.trim()) return alert('Enter valid credentials and Delete Security Password.');
-    onSaveCreds({ ...creds, username: u.trim(), password: p.trim(), deletePin: dp.trim() });
+    onSaveCreds({ ...creds, username: u.trim(), password: p.trim(), deletePin: dp.trim(), participateLeaderboard: participate });
   };
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -885,13 +1283,14 @@ function SettingsModal({ isOpen, onClose, user, creds, onSaveCreds, onResetFB })
         <div className="modal-header"><h3><i className="fa-solid fa-gear" style={{color:'var(--primary-amber)'}}></i> Workspace & Security Settings</h3><button className="close-btn" onClick={onClose}><i className="fa-solid fa-xmark"></i></button></div>
         <div className="modal-body">
           <form onSubmit={submit}>
-            <h4 style={{color:'var(--primary-amber)',marginBottom:'.75rem'}}>Account Credentials</h4>
-            <div className="form-group" style={{marginBottom:'.75rem'}}><label>Username</label><input type="text" className="form-control" value={u} onChange={e=>setU(e.target.value)} required /></div>
-            <div className="form-group" style={{marginBottom:'.75rem'}}><label>Login Password</label><input type="text" className="form-control" value={p} onChange={e=>setP(e.target.value)} required /></div>
             <div className="form-group" style={{marginBottom:'1rem'}}>
               <label style={{color:'var(--accent-rose)',fontWeight:600}}><i className="fa-solid fa-shield-halved"></i> Delete Protection Password / PIN *</label>
               <input type="text" className="form-control" style={{borderColor:'rgba(244,63,94,.4)'}} value={dp} onChange={e=>setDp(e.target.value)} placeholder="PIN required when deleting entries" required />
               <span style={{fontSize:'.75rem',color:'var(--text-muted)',marginTop:'.25rem'}}>Must be entered whenever anyone tries to delete stock, issue, or return vouchers.</span>
+            </div>
+            <div className="form-group" style={{marginBottom:'1.5rem', display:'flex', alignItems:'center', gap:'1rem'}}>
+              <input type="checkbox" id="partToggle" checked={participate} onChange={e=>setParticipate(e.target.checked)} style={{width:'18px',height:'18px',accentColor:'var(--primary-amber)'}} />
+              <label htmlFor="partToggle" style={{margin:0,fontWeight:600,color:'var(--accent-emerald)',cursor:'pointer'}}>Participate in Universal Leaderboard</label>
             </div>
             <button type="submit" className="nav-btn btn-primary" style={{width:'100%',justifyContent:'center'}}><i className="fa-solid fa-cloud-arrow-up"></i> Save Security Settings to Cloud</button>
           </form>
@@ -910,9 +1309,14 @@ function SettingsModal({ isOpen, onClose, user, creds, onSaveCreds, onResetFB })
 }
 
 // ── Tables ────────────────────────────────────────────────────
-function StockTable({ stockVouchers, onOpen, onDelete }) {
+function StockTable({ stockVouchers, onOpen, onDelete, onPrint, onEdit }) {
   const [q,setQ]=useState('');
-  const fil=stockVouchers.filter(sv=>sv.entryNo.toLowerCase().includes(q.toLowerCase().trim())||sv.receivedBy.toLowerCase().includes(q.toLowerCase().trim())||sv.items.some(i=>i.bookName.toLowerCase().includes(q.toLowerCase().trim())));
+  const fil=stockVouchers.filter(sv=>{
+    const en = (sv.entryNo || sv.stockNo || '').toLowerCase();
+    const rb = (sv.receivedBy || sv.receiverName || '').toLowerCase();
+    const qq = q.toLowerCase().trim();
+    return en.includes(qq) || rb.includes(qq) || sv.items?.some(i=>(i.bookName||'').toLowerCase().includes(qq));
+  });
   return (
     <div className="glass-panel">
       <div className="panel-header"><div className="panel-title"><i className="fa-solid fa-boxes-stacked" style={{color:'var(--primary-amber)'}}></i> 1. Temple Stock Receipts</div><button className="nav-btn btn-primary" onClick={onOpen}><i className="fa-solid fa-plus"></i> New Receipt</button></div>
@@ -921,13 +1325,17 @@ function StockTable({ stockVouchers, onOpen, onDelete }) {
         <thead><tr><th>Receipt No</th><th>Date</th><th>Received From</th><th>Books</th><th>Total Qty</th><th>Total Amount</th><th className="no-print">Action</th></tr></thead>
         <tbody>{fil.length===0?<tr><td colSpan="7" style={{textAlign:'center',padding:'2rem',color:'var(--text-muted)'}}>No records found.</td></tr>:fil.map(sv=>(
           <tr key={sv.firestoreId||sv.id}>
-            <td style={{fontWeight:700,color:'var(--primary-amber)'}}>{sv.entryNo}</td>
-            <td>{fmtDate(sv.date)}</td>
-            <td>{sv.receivedBy}</td>
+            <td style={{fontWeight:700,color:'var(--primary-amber)'}}>{sv.entryNo || sv.stockNo}</td>
+            <td>{fmtDate(sv.date || sv.receiptDate)}</td>
+            <td>{sv.receivedBy || sv.receiverName}</td>
             <td>{sv.items.map((i,idx)=><div key={idx} style={{fontSize:'.82rem'}}>{i.bookName} ({i.language||'English'}) — {i.quantity} @ ₹{i.price}</div>)}</td>
             <td><span className="badge badge-amber">{sv.totalQty} Books</span></td>
             <td style={{fontWeight:700,color:'var(--primary-amber)'}}>{fmt(sv.totalAmount)}</td>
-            <td className="no-print"><button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(sv)}><i className="fa-solid fa-trash-can"></i></button></td>
+            <td className="no-print" style={{display:'flex',gap:'.4rem'}}>
+              <button className="nav-btn btn-secondary" style={{padding:'.3rem .6rem',fontSize:'.75rem'}} onClick={()=>onPrint(sv)}><i className="fa-solid fa-print"></i></button>
+              <button className="nav-btn btn-secondary" style={{padding:'.3rem .6rem',fontSize:'.75rem',color:'var(--primary-amber)'}} onClick={()=>onEdit(sv)}><i className="fa-solid fa-pen"></i></button>
+              <button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(sv)}><i className="fa-solid fa-trash-can"></i></button>
+            </td>
           </tr>
         ))}</tbody>
       </table></div>
@@ -935,7 +1343,7 @@ function StockTable({ stockVouchers, onOpen, onDelete }) {
   );
 }
 
-function IssuesTable({ issueVouchers, onOpen, onDelete }) {
+function IssuesTable({ issueVouchers, onOpen, onDelete, onPrint, onEdit }) {
   const [q,setQ]=useState('');
   const fil=issueVouchers.filter(iv=>iv.issueNo.toLowerCase().includes(q.toLowerCase().trim())||iv.devoteeName.toLowerCase().includes(q.toLowerCase().trim())||iv.location.toLowerCase().includes(q.toLowerCase().trim())||iv.items.some(i=>i.bookName.toLowerCase().includes(q.toLowerCase().trim())));
   return (
@@ -948,12 +1356,16 @@ function IssuesTable({ issueVouchers, onOpen, onDelete }) {
           <tr key={iv.firestoreId||iv.id}>
             <td style={{fontWeight:700,color:'var(--accent-indigo)'}}>{iv.issueNo}</td>
             <td>{fmtDate(iv.issueDate)}</td>
-            <td style={{fontWeight:600}}>{iv.devoteeName}</td>
+            <td style={{fontWeight:600}}>{iv.devoteeName} {iv.devoteeType==='Group' && <span className="badge badge-purple" style={{fontSize:'.6rem'}}>Group</span>}</td>
             <td><span className="badge badge-blue"><i className="fa-solid fa-location-dot"></i> {iv.location}</span></td>
             <td>{iv.items.map((i,idx)=><div key={idx} style={{fontSize:'.82rem'}}>{i.bookName} ({i.language||'English'}) — {i.quantityIssued} Pcs</div>)}</td>
             <td><span className="badge badge-purple">{iv.totalIssuedQty} Books</span></td>
             <td>{iv.status==='Returned'?<span className="badge badge-emerald">Processed</span>:<span className="badge badge-amber">Active</span>}</td>
-            <td className="no-print"><button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(iv)}><i className="fa-solid fa-trash-can"></i></button></td>
+            <td className="no-print" style={{display:'flex',gap:'.4rem'}}>
+              <button className="nav-btn btn-secondary" style={{padding:'.3rem .6rem',fontSize:'.75rem'}} onClick={()=>onPrint(iv)}><i className="fa-solid fa-print"></i></button>
+              <button className="nav-btn btn-secondary" style={{padding:'.3rem .6rem',fontSize:'.75rem',color:'var(--primary-amber)'}} onClick={()=>onEdit(iv)}><i className="fa-solid fa-pen"></i></button>
+              <button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(iv)}><i className="fa-solid fa-trash-can"></i></button>
+            </td>
           </tr>
         ))}</tbody>
       </table></div>
@@ -961,7 +1373,7 @@ function IssuesTable({ issueVouchers, onOpen, onDelete }) {
   );
 }
 
-function ReturnsTable({ returnVouchers, onOpen, onDelete }) {
+function ReturnsTable({ returnVouchers, onOpen, onDelete, onPrint, onEdit }) {
   const [q,setQ]=useState('');
   const fil=returnVouchers.filter(rv=>rv.issueNo.toLowerCase().includes(q.toLowerCase().trim())||rv.devoteeName.toLowerCase().includes(q.toLowerCase().trim())||rv.location.toLowerCase().includes(q.toLowerCase().trim()));
   return (
@@ -974,13 +1386,17 @@ function ReturnsTable({ returnVouchers, onOpen, onDelete }) {
           <tr key={rv.firestoreId||rv.id}>
             <td style={{fontWeight:700,color:'var(--accent-indigo)'}}>{rv.issueNo}</td>
             <td>{fmtDate(rv.returnDate)}</td>
-            <td style={{fontWeight:600}}>{rv.devoteeName}</td>
+            <td style={{fontWeight:600}}>{rv.devoteeName} {rv.devoteeType==='Group' && <span className="badge badge-purple" style={{fontSize:'.6rem'}}>Group</span>}</td>
             <td><span className="badge badge-blue"><i className="fa-solid fa-location-dot"></i> {rv.location}</span></td>
             <td>{rv.items.map((i,idx)=><div key={idx} style={{fontSize:'.82rem'}}>{i.bookName}: Iss {i.quantityIssued} | Ret {i.quantityReturned} | <b>Sold {i.quantitySold}</b></div>)}</td>
             <td><span className="badge badge-amber">+{rv.totalReturnedQty}</span></td>
             <td><span className="badge badge-emerald" style={{fontWeight:700}}>{rv.totalSoldQty} Sold</span></td>
             <td style={{fontWeight:700,color:'var(--accent-emerald)'}}>{fmt(rv.totalAmountCollected)}</td>
-            <td className="no-print"><button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(rv)}><i className="fa-solid fa-trash-can"></i></button></td>
+            <td className="no-print" style={{display:'flex',gap:'.4rem'}}>
+              <button className="nav-btn btn-secondary" style={{padding:'.3rem .6rem',fontSize:'.75rem'}} onClick={()=>onPrint(rv)}><i className="fa-solid fa-print"></i></button>
+              <button className="nav-btn btn-secondary" style={{padding:'.3rem .6rem',fontSize:'.75rem',color:'var(--primary-amber)'}} onClick={()=>onEdit(rv)}><i className="fa-solid fa-pen"></i></button>
+              <button className="close-btn" style={{color:'var(--accent-rose)'}} onClick={()=>onDelete(rv)}><i className="fa-solid fa-trash-can"></i></button>
+            </td>
           </tr>
         ))}</tbody>
       </table></div>
@@ -1015,43 +1431,81 @@ function RecycleBin({ bin, onRestore, onPermDel, onClear }) {
   );
 }
 
-function Analytics({ returnVouchers }) {
+function Analytics({ returnVouchers, db, creds, user }) {
+  const [subTab, setSubTab] = useState('local'); // 'local' or 'universal'
   const [preset, setPreset] = useState('all'); // 'all' | 'today' | 'this_month' | 'this_year' | 'custom'
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [globalCredits, setGlobalCredits] = useState([]);
 
-  // Filter vouchers by selected date / month / year period
-  const filteredVouchers = returnVouchers.filter(rv => {
-    if (!rv.returnDate) return true;
-    const d = new Date(rv.returnDate);
+  useEffect(() => {
+    if (subTab === 'universal' && db) {
+      return db.collection('globalCredits').onSnapshot(s => {
+        setGlobalCredits(s.docs.map(d => d.data()));
+      });
+    }
+  }, [subTab, db]);
+
+  const checkDate = (dateStr) => {
+    if (!dateStr) return true;
+    const d = new Date(dateStr);
     if (isNaN(d)) return true;
     const now = new Date();
-
-    if (preset === 'today') {
-      return d.toDateString() === now.toDateString();
-    }
-    if (preset === 'this_month') {
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }
-    if (preset === 'this_year') {
-      return d.getFullYear() === now.getFullYear();
-    }
+    if (preset === 'today') return d.toDateString() === now.toDateString();
+    if (preset === 'this_month') return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    if (preset === 'this_year') return d.getFullYear() === now.getFullYear();
     if (preset === 'custom') {
-      if (startDate && new Date(rv.returnDate) < new Date(startDate)) return false;
-      if (endDate && new Date(rv.returnDate) > new Date(endDate + 'T23:59:59')) return false;
-      return true;
+      if (startDate && d < new Date(startDate)) return false;
+      if (endDate && d > new Date(endDate + 'T23:59:59')) return false;
     }
-    return true; // 'all'
+    return true;
+  };
+
+  // Filter vouchers by selected date / month / year period
+  const filteredVouchers = returnVouchers.filter(rv => checkDate(rv.returnDate));
+  const filteredGlobals = globalCredits.filter(gc => {
+    if (!checkDate(gc.date)) return false;
+    if (creds.participateLeaderboard === false && gc.storeName === (user?.tenantKey || 'folk')) return false;
+    return true;
   });
+
+  // Universal Rankings Computation
+  const gcGrouped = {};
+  filteredGlobals.forEach(gc => {
+    const k = gc.searchKey;
+    if (!gcGrouped[k]) gcGrouped[k] = { name: gc.devoteeName, qty: 0, stores: new Set() };
+    gcGrouped[k].qty += gc.totalSoldQty;
+    gcGrouped[k].stores.add(gc.storeName);
+  });
+  const URanking = Object.values(gcGrouped).map(r => ({ ...r, stores: Array.from(r.stores).join(', ') })).sort((a, b) => b.qty - a.qty);
 
   const bk={}, dv={}, dvDisplay={}, lc={}, lg={};
   filteredVouchers.forEach(rv => {
-    // Case-insensitive devotee name grouping — "Ram" and "ram" treated as same person
-    const dKey = (rv.devoteeName || '').trim().toLowerCase();
-    const dLabel = rv.devoteeName?.trim() || '';
+    // Split logic for Devotee Leaderboard
+    const isGroup = rv.devoteeType === 'Group' && rv.groupMembers?.length > 0;
+    const count = isGroup ? rv.groupMembers.length + 1 : 1;
+    const splitSold = Math.floor((rv.totalSoldQty || 0) / count);
+    const splitAmt = Math.floor((rv.totalAmountCollected || 0) / count);
+    const remSold = (rv.totalSoldQty || 0) % count;
+    const remAmt = (rv.totalAmountCollected || 0) % count;
+
+    const addStat = (name, sqty, samt) => {
+      if (!name) return;
+      const dKey = name.trim().toLowerCase();
+      const dLabel = name.trim();
+      if (!dv[dKey]) { dv[dKey] = { qty: 0, amt: 0 }; dvDisplay[dKey] = dLabel; }
+      dv[dKey].qty += sqty;
+      dv[dKey].amt += samt;
+    };
+
+    if (isGroup) {
+      addStat(rv.devoteeName, splitSold + remSold, splitAmt + remAmt);
+      rv.groupMembers.forEach(m => addStat(m.name || m, splitSold, splitAmt));
+    } else {
+      addStat(rv.devoteeName, rv.totalSoldQty || 0, rv.totalAmountCollected || 0);
+    }
+    
     const l = rv.location;
-    if (!dv[dKey]) { dv[dKey] = { qty: 0, amt: 0 }; dvDisplay[dKey] = dLabel; }
-    dv[dKey].qty += rv.totalSoldQty; dv[dKey].amt += rv.totalAmountCollected;
     if (!lc[l]) lc[l] = { qty: 0, amt: 0 }; lc[l].qty += rv.totalSoldQty; lc[l].amt += rv.totalAmountCollected;
     rv.items.forEach(i => {
       const b = i.bookName, la = i.language || 'English';
@@ -1102,44 +1556,75 @@ function Analytics({ returnVouchers }) {
 
   return (
     <div className="glass-panel">
-      <div className="panel-header">
+      <div className="panel-header" style={{ borderBottom: 'none', paddingBottom: 0 }}>
         <div className="panel-title"><i className="fa-solid fa-chart-line" style={{ color: 'var(--accent-purple)' }}></i> Distribution Analytics & Statistics</div>
-        <button className="nav-btn btn-indigo no-print" onClick={() => window.print()}><i className="fa-solid fa-print"></i> Print Report</button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button className={`nav-btn ${subTab==='local'?'btn-primary':'btn-secondary'}`} onClick={() => setSubTab('local')}><i className="fa-solid fa-store"></i> Local Store</button>
+          <button className={`nav-btn ${subTab==='universal'?'btn-emerald':'btn-secondary'}`} onClick={() => setSubTab('universal')}><i className="fa-solid fa-earth-americas"></i> Universal Rankings</button>
+          <button className="nav-btn btn-indigo no-print" onClick={() => window.print()}><i className="fa-solid fa-print"></i> Print</button>
+        </div>
       </div>
 
-      {/* Date, Month, Year & Custom Period Filter */}
-      <div className="no-print" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', background: 'rgba(15,23,42,0.8)', padding: '.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontSize: '.85rem', fontWeight: 600, color: 'var(--primary-amber)' }}>
-          <i className="fa-solid fa-calendar-days"></i> Filter Period:
-        </div>
-        <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap' }}>
-          <button type="button" className={`nav-btn ${preset==='all'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('all')}>All Time</button>
-          <button type="button" className={`nav-btn ${preset==='today'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('today')}>Today</button>
-          <button type="button" className={`nav-btn ${preset==='this_month'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('this_month')}>This Month</button>
-          <button type="button" className={`nav-btn ${preset==='this_year'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('this_year')}>This Year</button>
-          <button type="button" className={`nav-btn ${preset==='custom'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('custom')}>Custom Range</button>
+      <div style={{ padding: '0 1.5rem 1.5rem' }}>
+        {/* Date, Month, Year & Custom Period Filter */}
+        <div className="no-print" style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', marginTop: '1rem', background: 'rgba(15,23,42,0.8)', padding: '.75rem 1rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '.5rem', fontSize: '.85rem', fontWeight: 600, color: 'var(--primary-amber)' }}>
+            <i className="fa-solid fa-calendar-days"></i> Filter Period:
+          </div>
+          <div style={{ display: 'flex', gap: '.4rem', flexWrap: 'wrap' }}>
+            <button type="button" className={`nav-btn ${preset==='all'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('all')}>All Time</button>
+            <button type="button" className={`nav-btn ${preset==='today'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('today')}>Today</button>
+            <button type="button" className={`nav-btn ${preset==='this_month'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('this_month')}>This Month</button>
+            <button type="button" className={`nav-btn ${preset==='this_year'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('this_year')}>This Year</button>
+            <button type="button" className={`nav-btn ${preset==='custom'?'btn-primary':'btn-secondary'}`} style={{ padding: '.3rem .75rem', fontSize: '.8rem' }} onClick={() => setPreset('custom')}>Custom Range</button>
+          </div>
+          {preset === 'custom' && (
+            <div style={{ display: 'flex', gap: '.4rem', alignItems: 'center' }}>
+              <input type="date" className="form-control" style={{ padding: '.3rem .5rem', fontSize: '.82rem', width: 'auto' }} value={startDate} onChange={e => setStartDate(e.target.value)} />
+              <span style={{ fontSize: '.8rem', color: 'var(--text-muted)' }}>to</span>
+              <input type="date" className="form-control" style={{ padding: '.3rem .5rem', fontSize: '.82rem', width: 'auto' }} value={endDate} onChange={e => setEndDate(e.target.value)} />
+            </div>
+          )}
+          <span className="badge badge-purple" style={{ marginLeft: 'auto' }}>
+            {subTab === 'local' ? filteredVouchers.length + ' Local Vouchers' : filteredGlobals.length + ' Global Logs'}
+          </span>
         </div>
 
-        {preset === 'custom' && (
-          <div style={{ display: 'flex', gap: '.4rem', alignItems: 'center' }}>
-            <input type="date" className="form-control" style={{ padding: '.3rem .5rem', fontSize: '.82rem', width: 'auto' }} value={startDate} onChange={e => setStartDate(e.target.value)} />
-            <span style={{ fontSize: '.8rem', color: 'var(--text-muted)' }}>to</span>
-            <input type="date" className="form-control" style={{ padding: '.3rem .5rem', fontSize: '.82rem', width: 'auto' }} value={endDate} onChange={e => setEndDate(e.target.value)} />
+        {subTab === 'local' ? (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '1.5rem' }}>
+              <div><h4 style={{ marginBottom: '.75rem', color: 'var(--primary-amber)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-fire"></i> Most Distributed Books</h4><Tbl data={TB} cols={['Rank', 'Book', 'Qty Sold', 'Donation']} /></div>
+              <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-indigo)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-trophy"></i> Devotee Leaderboard</h4><Tbl data={TD} cols={['Rank', 'Devotee', 'Books Sold', 'Collection']} /></div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
+              <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-location-dot"></i> Distribution by Location</h4><Tbl2 data={TL} /></div>
+              <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-language"></i> Language-wise Share</h4><Tbl2 data={TG} /></div>
+            </div>
+          </>
+        ) : (
+          <div>
+            <h4 style={{ marginBottom: '.75rem', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-earth-americas"></i> Global Devotee Rankings (Across all Stores)</h4>
+            <div className="table-responsive">
+              <table className="custom-table">
+                <thead><tr><th>Global Rank</th><th>Devotee Name</th><th>Total Books Sold</th><th>Distributed At (Stores)</th></tr></thead>
+                <tbody>
+                  {URanking.length === 0 ? (
+                    <tr><td colSpan="4" style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>No global distribution data for selected period.</td></tr>
+                  ) : (
+                    URanking.map((r, i) => (
+                      <tr key={i}>
+                        <td>{i===0?<i className="fa-solid fa-crown" style={{color:'gold',marginRight:'4px'}}></i>:i===1?<i className="fa-solid fa-medal" style={{color:'silver',marginRight:'4px'}}></i>:i===2?<i className="fa-solid fa-medal" style={{color:'#cd7f32',marginRight:'4px'}}></i>:null}<b>#{i + 1}</b></td>
+                        <td style={{ fontWeight: 600 }}>{r.name}</td>
+                        <td><span className="badge badge-emerald" style={{fontSize:'.95rem',fontWeight:700}}>{r.qty} Books</span></td>
+                        <td><span style={{color:'var(--text-dim)',fontSize:'.85rem'}}>{r.stores}</span></td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
-
-        <span className="badge badge-purple" style={{ marginLeft: 'auto' }}>
-          {filteredVouchers.length} Vouchers Included
-        </span>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '1.5rem' }}>
-        <div><h4 style={{ marginBottom: '.75rem', color: 'var(--primary-amber)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-fire"></i> Most Distributed Books</h4><Tbl data={TB} cols={['Rank', 'Book', 'Qty Sold', 'Donation']} /></div>
-        <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-indigo)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-trophy"></i> Devotee Leaderboard</h4><Tbl data={TD} cols={['Rank', 'Devotee', 'Books Sold', 'Collection']} /></div>
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(320px,1fr))', gap: '1.5rem', marginTop: '1.5rem' }}>
-        <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-location-dot"></i> Distribution by Location</h4><Tbl2 data={TL} /></div>
-        <div><h4 style={{ marginBottom: '.75rem', color: 'var(--accent-emerald)', display: 'flex', alignItems: 'center', gap: '.5rem' }}><i className="fa-solid fa-language"></i> Language-wise Share</h4><Tbl2 data={TG} /></div>
       </div>
     </div>
   );
@@ -1222,6 +1707,7 @@ function App() {
   const [issues, setIssues] = useState([]);
   const [returns, setReturns] = useState([]);
   const [bin, setBin] = useState([]);
+  const [devotees, setDevotees] = useState([]);
 
   const [tab, setTab] = useState('dashboard');
   const [showStock, setShowStock] = useState(false);
@@ -1229,6 +1715,8 @@ function App() {
   const [showReturn, setShowReturn] = useState(false);
   const [showCatalog, setShowCatalog] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [printVoucher, setPrintVoucher] = useState(null);
+  const [editData, setEditData] = useState(null);
 
   // Init Firebase
   useEffect(()=>{
@@ -1260,7 +1748,7 @@ function App() {
     if(!db || !user) return;
     setLoading(true);
     const loaded={}; let cnt=0;
-    const mark=(k)=>{if(!loaded[k]){loaded[k]=true;cnt++;if(cnt>=6)setLoading(false);}};
+    const mark=(k)=>{if(!loaded[k]){loaded[k]=true;cnt++;if(cnt>=7)setLoading(false);}};
     const err=(e)=>setFbErr('Firestore error: '+e.message+'. Check Firebase Rules (allow read, write: if true).');
     const unsubs=[];
     
@@ -1269,6 +1757,7 @@ function App() {
     const colIssue = getCol('issueVouchers');
     const colReturn = getCol('returnVouchers');
     const colBin = getCol('recycleBin');
+    const colDevotees = getCol('devotees');
 
     unsubs.push(colSetting.doc('credentials').onSnapshot(d=>{if(d.exists)setCreds(d.data());mark('cr');},err));
     unsubs.push(colSetting.doc('booksCatalog').onSnapshot(d=>{if(d.exists&&d.data()?.books?.length>0)setMasterBooks(d.data().books);else setMasterBooks(CATALOG);mark('bk');},err));
@@ -1276,6 +1765,7 @@ function App() {
     unsubs.push(colIssue.orderBy('createdAt','desc').onSnapshot(s=>{setIssues(s.docs.map(d=>({...d.data(),firestoreId:d.id})));mark('is');},err));
     unsubs.push(colReturn.orderBy('createdAt','desc').onSnapshot(s=>{setReturns(s.docs.map(d=>({...d.data(),firestoreId:d.id})));mark('re');},err));
     unsubs.push(colBin.orderBy('createdAt','desc').onSnapshot(s=>{setBin(s.docs.map(d=>({...d.data(),firestoreId:d.id})));mark('bi');},err));
+    unsubs.push(colDevotees.orderBy('createdAt','desc').onSnapshot(s=>{setDevotees(s.docs.map(d=>({...d.data(),firestoreId:d.id})));mark('dv');},err));
     
     return()=>unsubs.forEach(u=>u());
   },[db, user, selectedWorkspaceKey]);
@@ -1299,15 +1789,69 @@ function App() {
     return false;
   };
 
-  const handleAddStock=async(v)=>{await getCol('stockVouchers').add({...v,createdAt:TS()});};
-  const handleAddIssue=async(v)=>{await getCol('issueVouchers').add({...v,createdAt:TS()});};
-  const handleAddReturn=async(v)=>{
-    const batch=db.batch();
-    batch.set(getCol('returnVouchers').doc(),{...v,createdAt:TS()});
-    const iv=issues.find(x=>x.issueNo===v.issueNo);
-    if(iv?.firestoreId)batch.update(getCol('issueVouchers').doc(iv.firestoreId),{status:'Returned'});
-    await batch.commit();
+  const handleAddStock=async(v)=>{
+    if (v.firestoreId) {
+      const { firestoreId, ...data } = v;
+      await getCol('stockVouchers').doc(firestoreId).update(data);
+    } else {
+      const { firestoreId, ...data } = v;
+      await getCol('stockVouchers').add({...data,createdAt:TS()});
+    }
   };
+  const handleAddIssue=async(v)=>{
+    if (v.firestoreId) {
+      const { firestoreId, ...data } = v;
+      await getCol('issueVouchers').doc(firestoreId).update(data);
+    } else {
+      const { firestoreId, ...data } = v;
+      await getCol('issueVouchers').add({...data,status:'Active',createdAt:TS()});
+    }
+  };
+  const handleAddReturn=async(v)=>{
+    if (v.firestoreId) {
+      const { firestoreId, ...data } = v;
+      await getCol('returnVouchers').doc(firestoreId).update(data);
+    } else {
+      const { firestoreId, ...data } = v;
+      const batch=db.batch();
+      batch.set(getCol('returnVouchers').doc(),{...data,createdAt:TS()});
+      const iv=issues.find(x=>x.issueNo===v.issueNo);
+      if(iv?.firestoreId)batch.update(getCol('issueVouchers').doc(iv.firestoreId),{status:'Returned'});
+
+      // Add Universal Credits
+      if (v.totalSoldQty > 0 && creds.participateLeaderboard !== false) {
+        const isGroup = v.devoteeType === 'Group' && v.groupMembers?.length > 0;
+        const count = isGroup ? v.groupMembers.length + 1 : 1;
+        const splitSold = Math.floor(v.totalSoldQty / count);
+        const remainder = v.totalSoldQty % count;
+
+        const addCredit = (devName, amount) => {
+          if (amount > 0) {
+            batch.set(db.collection('globalCredits').doc(), {
+              devoteeName: devName.trim(),
+              searchKey: devName.trim().toLowerCase(),
+              totalSoldQty: amount,
+              storeName: user?.tenantKey || 'folk',
+              date: v.returnDate,
+              createdAt: TS()
+            });
+          }
+        };
+
+        if (isGroup) {
+          addCredit(v.devoteeName, splitSold + remainder); // Leader gets remainder
+          v.groupMembers.forEach(m => addCredit(m.name || m, splitSold));
+        } else {
+          addCredit(v.devoteeName, v.totalSoldQty);
+        }
+      }
+      await batch.commit();
+    }
+  };
+
+  const handleEditStock = (v) => { if(checkDeletePin()){ setEditData(v); setShowStock(true); } };
+  const handleEditIssue = (v) => { if(checkDeletePin()){ setEditData(v); setShowIssue(true); } };
+  const handleEditReturn = (v) => { if(checkDeletePin()){ setEditData(v); setShowReturn(true); } };
 
   const softDel=async(colName,doc,type,voucherNo,details)=>{
     if(!checkDeletePin()) return;
@@ -1341,7 +1885,41 @@ function App() {
     if(confirm('Empty entire Recycle Bin permanently?')){const batch=db.batch();bin.forEach(x=>batch.delete(getCol('recycleBin').doc(x.firestoreId)));await batch.commit();}
   };
 
-  const handleSaveCreds=async(c)=>{await getCol('settings').doc('credentials').set(c);alert('Settings saved to cloud!');};
+  const handleSaveCreds = async (c) => {
+    try {
+      await getCol('settings').doc('credentials').set(c);
+      
+      // Universal Leaderboard Opt-out Logic
+      if (c.participateLeaderboard === false) {
+        const qs = await db.collection('globalCredits').where('storeName', '==', user?.tenantKey || 'folk').get();
+        if (!qs.empty) {
+          // Process in chunks of 500 to avoid Firestore batch limits
+          const chunks = [];
+          let currentChunk = db.batch();
+          let count = 0;
+          
+          qs.docs.forEach(d => {
+            currentChunk.delete(d.ref);
+            count++;
+            if (count === 490) {
+              chunks.push(currentChunk);
+              currentChunk = db.batch();
+              count = 0;
+            }
+          });
+          if (count > 0) chunks.push(currentChunk);
+          
+          for (let batch of chunks) {
+            await batch.commit();
+          }
+        }
+      }
+      alert('Settings saved to cloud!');
+    } catch (err) {
+      alert('Error saving settings or removing leaderboard data: ' + err.message);
+      console.error(err);
+    }
+  };
   const handleAddBook=async(b)=>{const upd=[...masterBooks,b];await getCol('settings').doc('booksCatalog').set({books:upd});alert(`"${b.name}" added to catalog!`);};
   const handleResetFB=()=>{if(confirm('Reset Firebase? You will need to re-enter your config.')){localStorage.removeItem('folk_fb_cfg');sessionStorage.removeItem('folk_session');window.location.reload();}};
   const handleLogout=()=>{setUser(null);sessionStorage.removeItem('folk_session');};
@@ -1352,6 +1930,8 @@ function App() {
   if(loading)return<LoadingScreen msg={`Loading ${user?.username}'s cloud workspace...`}/>;
   if(fbErr)return<ErrorScreen msg={fbErr} onReset={handleResetFB}/>;
 
+  if (printVoucher) return <PrintView voucher={printVoucher} onClose={() => setPrintVoucher(null)} />;
+
   return (
     <div className="app-container">
       <Navbar user={user} allUsers={allUsers} selectedWorkspaceKey={selectedWorkspaceKey} onSwitchWorkspace={setSelectedWorkspaceKey} onOpenStock={()=>setShowStock(true)} onOpenIssue={()=>setShowIssue(true)} onOpenReturn={()=>setShowReturn(true)} onOpenCatalog={()=>setShowCatalog(true)} onOpenSettings={()=>setShowSettings(true)} onLogout={handleLogout} />
@@ -1361,23 +1941,25 @@ function App() {
           <button className={`tab-item ${tab==='stock'?'active':''}`} onClick={()=>setTab('stock')}><i className="fa-solid fa-boxes-stacked"></i> 1. Stock Receipts ({stock.length})</button>
           <button className={`tab-item ${tab==='issues'?'active':''}`} onClick={()=>setTab('issues')}><i className="fa-solid fa-hand-holding-hand"></i> 2. Devotee Issues ({issues.length})</button>
           <button className={`tab-item ${tab==='returns'?'active':''}`} onClick={()=>setTab('returns')}><i className="fa-solid fa-rotate-left"></i> 3. Book Returns ({returns.length})</button>
-          <button className={`tab-item ${tab==='analytics'?'active':''}`} onClick={()=>setTab('analytics')}><i className="fa-solid fa-chart-line"></i> 4. Analytics</button>
+          <button className={`tab-item ${tab==='devotees'?'active':''}`} onClick={()=>setTab('devotees')}><i className="fa-solid fa-users"></i> 4. Devotees Directory</button>
+          <button className={`tab-item ${tab==='analytics'?'active':''}`} onClick={()=>setTab('analytics')}><i className="fa-solid fa-chart-line"></i> 5. Analytics</button>
           <button className={`tab-item ${tab==='bin'?'active':''}`} onClick={()=>setTab('bin')} style={{color:bin.length>0?'var(--accent-rose)':'inherit'}}><i className="fa-solid fa-trash-arrow-up"></i> Recycle Bin ({bin.length})</button>
           {user?.role==='admin'&&<button className={`tab-item ${tab==='admin'?'active':''}`} onClick={()=>setTab('admin')} style={{color:'var(--accent-rose)',fontWeight:700}}><i className="fa-solid fa-user-shield"></i> 🔑 Master Admin Panel ({allUsers.length})</button>}
         </div>
       </div>
       <main className="main-content">
         {tab==='dashboard'&&<Dashboard stockVouchers={stock} issueVouchers={issues} returnVouchers={returns}/>}
-        {tab==='stock'&&<StockTable stockVouchers={stock} onOpen={()=>setShowStock(true)} onDelete={handleDelStock}/>}
-        {tab==='issues'&&<IssuesTable issueVouchers={issues} onOpen={()=>setShowIssue(true)} onDelete={handleDelIssue}/>}
-        {tab==='returns'&&<ReturnsTable returnVouchers={returns} onOpen={()=>setShowReturn(true)} onDelete={handleDelReturn}/>}
-        {tab==='analytics'&&<Analytics returnVouchers={returns}/>}
+        {tab==='stock'&&<StockTable stockVouchers={stock} onOpen={()=>{setEditData(null);setShowStock(true)}} onDelete={handleDelStock} onPrint={setPrintVoucher} onEdit={handleEditStock} />}
+        {tab==='issues'&&<IssuesTable issueVouchers={issues} onOpen={()=>{setEditData(null);setShowIssue(true)}} onDelete={handleDelIssue} onPrint={setPrintVoucher} onEdit={handleEditIssue} />}
+        {tab==='returns'&&<ReturnsTable returnVouchers={returns} onOpen={()=>{setEditData(null);setShowReturn(true)}} onDelete={handleDelReturn} onPrint={setPrintVoucher} onEdit={handleEditReturn} />}
+        {tab==='devotees'&&<DevoteesDirectory devotees={devotees} getCol={getCol} TS={TS} checkDeletePin={checkDeletePin} />}
+        {tab==='analytics'&&<Analytics returnVouchers={returns} db={db} creds={creds} user={user} />}
         {tab==='bin'&&<RecycleBin bin={bin} onRestore={handleRestore} onPermDel={handlePermDel} onClear={handleClearBin}/>}
         {tab==='admin'&&user?.role==='admin'&&<MasterAdminPanel allUsers={allUsers} db={db} selectedWorkspaceKey={selectedWorkspaceKey} onSwitchWorkspace={setSelectedWorkspaceKey}/>}
       </main>
-      <StockModal isOpen={showStock} onClose={()=>setShowStock(false)} masterBooks={masterBooks} onAdd={handleAddStock}/>
-      <IssueModal isOpen={showIssue} onClose={()=>setShowIssue(false)} masterBooks={masterBooks} stockVouchers={stock} issueVouchers={issues} returnVouchers={returns} onAdd={handleAddIssue}/>
-      <ReturnModal isOpen={showReturn} onClose={()=>setShowReturn(false)} issueVouchers={issues} onAdd={handleAddReturn}/>
+      {showStock&&<StockModal isOpen={showStock} onClose={()=>setShowStock(false)} masterBooks={masterBooks} stockVouchers={stock} onAdd={handleAddStock} editData={editData} />}
+      {showIssue&&<IssueModal isOpen={showIssue} onClose={()=>setShowIssue(false)} masterBooks={masterBooks} stockVouchers={stock} issueVouchers={issues} returnVouchers={returns} devotees={devotees} onAdd={handleAddIssue} editData={editData} />}
+      {showReturn&&<ReturnModal isOpen={showReturn} onClose={()=>setShowReturn(false)} issueVouchers={issues} returnVouchers={returns} onAdd={handleAddReturn} editData={editData} />}
       <CatalogModal isOpen={showCatalog} onClose={()=>setShowCatalog(false)} masterBooks={masterBooks} onAddBook={handleAddBook}/>
       <SettingsModal isOpen={showSettings} onClose={()=>setShowSettings(false)} user={user} creds={creds} onSaveCreds={handleSaveCreds} onResetFB={handleResetFB}/>
       {/* ISKCON Bhadaj Ahmedabad Footer */}
@@ -1388,7 +1970,7 @@ function App() {
             <img src="iskcon_logo.jpg" alt="Srila Prabhupada's ISKCON Bhadaj Ahmedabad" style={{ height: '36px', objectFit: 'contain', opacity: 0.85, borderRadius: '4px' }} />
           </div>
           <p style={{ fontSize: '.72rem', color: 'var(--text-dim)', margin: 0 }}>
-            Managed by FOLK Life &nbsp;|&nbsp; Under Srila Prabhupada's ISKCON, Bhadaj — Ahmedabad &nbsp;|&nbsp; Hare Krishna 🙏
+            &copy; {new Date().getFullYear()} All rights reserved &nbsp;|&nbsp; ISKCON Bhadaj, Ahmedabad &nbsp;|&nbsp; Managed by FOLK
           </p>
         </div>
       </footer>
